@@ -10,6 +10,7 @@ LDFLAGS ?= -n -T src/linker.ld
 
 METAL_ELF ?= metal.elf
 METAL_BIN ?= metal.bin
+METAL_ISO ?= metal.iso
 
 all: $(METAL_BIN)
 
@@ -45,9 +46,17 @@ $(METAL_BIN): $(METAL_ELF)
 	@echo "  OBJCOPY  $@"
 	@objcopy -O binary $^ $@
 
-run: $(METAL_BIN)
-	@echo "  QEMU     $(METAL_BIN)"
-	@qemu-system-x86_64 -kernel $(METAL_BIN)
+$(METAL_ISO): $(METAL_BIN) src/boot/grub.cfg
+	@mkdir -p $(OUTDIR)/iso/boot/grub
+	@cp src/boot/grub.cfg $(OUTDIR)/iso/boot/grub
+	@cp $(METAL_BIN) $(OUTDIR)/iso/boot
+	@grub-mkrescue -o $@ $(OUTDIR)/iso
+
+iso: $(METAL_ISO)
+
+run: $(METAL_ELF)
+	@echo "  QEMU     $(METAL_ELF)"
+	@qemu-system-x86_64 -kernel $(METAL_ELF)
 
 debug: $(METAL_BIN)
 	@echo "  QEMU     $(METAL_BIN)"
@@ -57,6 +66,6 @@ debug: $(METAL_BIN)
 clean:
 	@echo "  RM       "
 	@rm -rf $(OUTDIR)
-	@rm -f $(METAL_ELF) $(METAL_BIN)
+	@rm -f $(METAL_ELF) $(METAL_BIN) $(METAL_ISO)
 
-.PHONY: all run debug clean
+.PHONY: all iso run debug clean
