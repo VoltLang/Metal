@@ -3,17 +3,24 @@
 
 ### Definitions
 
-`AT`= Directive in LD linker scripts
-`LMA` = Load address
-`VMA` = Virtual address
-`elf-binary` = Binary in elf format, with reallocations not applied
+`LMA` = Load address  
+`VMA` = Virtual address  
+`elf-binary` = Binary in elf format, with reallocations not applied  
 `bin-binary` = Raw binary, with all reallocations applied
 
-### LVM and VMA
+
+### Directives
+
+`AT` = Set LMA  
+`ADDR` = Return VMA of given section  
+`SIZEOF` = Size of given section  
+
+
+### LVM, VMA and AT
 
 Understanding LMA and VMA, and the AT directive. In short AT allows us to disconnect where in the bin-binary or physical memory they end up and where in memory the code think it is.
 
-https://sourceware.org/binutils/docs/ld/Output-Section-LMA.html
+https://sourceware.org/binutils/docs/ld/Output-Section-LMA.html  
 https://sourceware.org/binutils/docs/ld/Overlay-Description.html
 
 
