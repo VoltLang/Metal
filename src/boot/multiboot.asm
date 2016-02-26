@@ -1,14 +1,15 @@
 [BITS 32]
 [global _start]
 
-FLAG_ALIGN		equ 1<<0
-FLAG_MEMINFO		equ 1<<1
-FLAG_AOUT_KLUDGE	equ 1<<16
+%define FLAG_ALIGN 		1<<0
+%define FLAG_MEMINFO		1<<1
+%define FLAG_AOUT_KLUDGE	1<<16
 
-MAGIC			equ 0x1BADB002
+%define MAGIC			0x1BADB002
 
-FLAGS			equ FLAG_AOUT_KLUDGE | FLAG_ALIGN | FLAG_MEMINFO
-CHECKSUM		equ -(MAGIC + FLAGS)
+%define FLAGS			(FLAG_AOUT_KLUDGE | FLAG_ALIGN | FLAG_MEMINFO)
+%define CHECKSUM		-(MAGIC + FLAGS)
+
 
 ; We put this in its own section so that along with a linker script
 ; we are certain that it ends up at the start of the binary.
