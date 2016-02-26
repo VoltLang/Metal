@@ -54,13 +54,13 @@ $(METAL_ISO): $(METAL_BIN) src/boot/grub.cfg
 
 iso: $(METAL_ISO)
 
-run: $(METAL_ELF)
-	@echo "  QEMU     $(METAL_ELF)"
-	@qemu-system-x86_64 -kernel $(METAL_ELF)
+run: $(METAL_BIN)
+	@echo "  QEMU     $^"
+	@qemu-system-x86_64 -kernel $^
 
 debug: $(METAL_BIN)
-	@echo "  QEMU     $(METAL_BIN)"
-	@qemu-system-x86_64 -kernel $(METAL_BIN) -S -s &
+	@echo "  QEMU     $^"
+	@qemu-system-x86_64 -kernel $^ -S -s &
 	@gdb $(METAL_ELF) -ex 'target remote localhost:1234'
 
 clean:
