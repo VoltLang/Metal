@@ -50,7 +50,7 @@ $(METAL_ISO): $(METAL_BIN) src/boot/grub.cfg
 	@mkdir -p $(OUTDIR)/iso/boot/grub
 	@cp src/boot/grub.cfg $(OUTDIR)/iso/boot/grub
 	@cp $(METAL_BIN) $(OUTDIR)/iso/boot
-	@grub-mkrescue -o $@ $(OUTDIR)/iso
+	@grub-mkrescue -o $@ $(OUTDIR)/iso -d /usr/lib/grub/i386-pc
 
 iso: $(METAL_ISO)
 
