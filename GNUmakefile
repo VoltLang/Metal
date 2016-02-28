@@ -27,7 +27,7 @@ $(OUTDIR)/%.asm.o: src/%.asm
 	@mkdir -p $(dir $@)
 	@echo "  NASM     $@"
 	@nasm -o $@ $(NASMFLAGS) $^
-	
+
 $(OUTDIR)/%.c.o: src/%.c
 	@mkdir -p $(dir $@)
 	@echo "  CLANG    $@"
