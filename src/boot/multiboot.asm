@@ -1,6 +1,9 @@
 [BITS 32]
 [global _start]
 
+extern __data_end
+extern __bss_end
+
 ; We put this in its own section so that along with a linker script we are
 ; certain that it ends up at the start of the binary.
 section .multiboot
@@ -29,8 +32,8 @@ multiboot1_header:
 	dd MULTIBOOT1_CHECKSUM
 	dd multiboot1_header
 	dd _start
-	dd 0x00
-	dd 0x00
+	dd __data_end
+	dd __bss_end
 	dd multiboot_entry
 multiboot1_end:
 
@@ -59,8 +62,8 @@ multiboot2_header:
 	dd (8 + 4 + 4 + 4 + 4)
 	dd multiboot2_header
 	dd _start
-	dd 0
-	dd 0
+	dd __data_end
+	dd __bss_end
 
 ; entry tag
 	align 8

@@ -16,8 +16,10 @@ SECTIONS
 		. = ALIGN(4K);
 		*(.rodata)
 		. = ALIGN(4K);
+		__data_end = .;
 	}
 	.bss : {
 		*(.bss);
+		__bss_end = .;
 	}
 }
