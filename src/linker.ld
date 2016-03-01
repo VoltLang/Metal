@@ -13,10 +13,9 @@ SECTIONS
 	}
 	.data : {
 		*(.data)
-		. = ALIGN(4K);
 		*(.rodata)
-		. = ALIGN(4K);
 		__data_end = .;
+		. = ALIGN(4K);
 	}
 	.bss : {
 		*(.bss);
