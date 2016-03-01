@@ -1,5 +1,5 @@
 // Taken from the osdev wiki and later converted to volt code.
-module metal;
+module metal.main;
 
 
 extern(C) void metal_main(int magic, void* meminfo)

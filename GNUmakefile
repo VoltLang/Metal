@@ -16,7 +16,7 @@ all: $(METAL_BIN)
 
 CSRC =
 ASMSRC = src/boot/multiboot.asm
-VOLTSRC = src/metal.volt
+VOLTSRC = src/metal/main.volt
 COBJ = $(patsubst src/%.c, $(OUTDIR)/%.c.o, $(CSRC))
 ASMOBJ = $(patsubst src/%.asm, $(OUTDIR)/%.asm.o, $(ASMSRC))
 VOLTOBJ = $(patsubst src/%.volt, $(OUTDIR)/%.volt.o, $(VOLTSRC))
