@@ -18,10 +18,10 @@ all: $(METAL_BIN)
 
 CSRC =
 ASMSRC = src/boot/multiboot.asm
-VOLTSRC = src/metal/main.volt
+VOLTSRC = src/metal/main.volt src/metal/vga.volt
 COBJ = $(patsubst src/%.c, $(OUTDIR)/%.c.o, $(CSRC))
 ASMOBJ = $(patsubst src/%.asm, $(OUTDIR)/%.asm.o, $(ASMSRC))
-VOLTOBJ = $(patsubst src/%.volt, $(OUTDIR)/%.volt.o, $(VOLTSRC))
+VOLTOBJ = $(OUTDIR)/volt.o
 OBJ = $(COBJ) $(ASMOBJ) $(VOLTOBJ)
 
 
@@ -35,10 +35,10 @@ $(OUTDIR)/%.c.o: src/%.c
 	@echo "  CLANG    $@"
 	@$(CLANG) -o $@ -c $(CFLAGS) $^
 
-$(OUTDIR)/%.volt.o: src/%.volt
+$(VOLTOBJ): $(VOLTSRC)
 	@mkdir -p $(dir $@)
 	@echo "  VOLT     $@"
-	@$(VOLT) -o $@ -c $(VFLAGS) $^
+	@$(VOLT) -o $@ -c $(VFLAGS) $(VOLTSRC)
 
 $(METAL_ELF): $(OBJ) src/linker.ld
 	@echo "  LD       $@"
