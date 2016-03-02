@@ -5,7 +5,7 @@ module metal.main;
 import metal.vga;
 
 
-extern(C) void metal_main(int magic, void* meminfo)
+extern(C) void metal_main(uint magic, void* meminfo)
 {
 	terminal_initialize();
 
@@ -17,6 +17,6 @@ extern(C) void metal_main(int magic, void* meminfo)
 	terminal_newline();
 
 	terminal_writestring("Meninfo: ");
-	terminal_hex(cast(int)meminfo);
+	terminal_hex(cast(uint)meminfo);
 	terminal_newline();
 }

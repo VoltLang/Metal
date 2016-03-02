@@ -93,10 +93,23 @@ void terminal_newline()
 	terminal_column = 0;
 }
 
-void terminal_hex(int hex)
+void terminal_hex(uint hex)
 {
 	foreach (i; 0 .. 8) {
-		int v = (hex >> 28) & 0x0f;
+		uint v = (hex >> 28) & 0x0f;
+		if (v < 10) {
+			terminal_putchar(cast(char)(v + '0'));
+		} else {
+			terminal_putchar(cast(char)((v - 10) + 'A'));
+		}
+		hex = hex << 4;
+	}
+}
+
+void terminal_hex(ulong hex)
+{
+	foreach (i; 0 .. 16) {
+		ulong v = (hex >> 60) & 0x0f;
 		if (v < 10) {
 			terminal_putchar(cast(char)(v + '0'));
 		} else {
