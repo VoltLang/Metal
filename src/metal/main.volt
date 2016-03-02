@@ -1,5 +1,5 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
-// See copyright notice in src/volt/license.d (BOOST ver. 1.0).
+// See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 module metal.main;
 
 import metal.vga;
