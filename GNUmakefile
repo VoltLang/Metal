@@ -1,4 +1,6 @@
 
+LD ?= ld
+VOLT ?= volt
 NASM ?= nasm
 CLANG ?= clang
 QEMU ?= qemu-system-x86_64
@@ -26,21 +28,21 @@ OBJ = $(COBJ) $(ASMOBJ) $(VOLTOBJ)
 $(OUTDIR)/%.asm.o: src/%.asm
 	@mkdir -p $(dir $@)
 	@echo "  NASM     $@"
-	@nasm -o $@ $(NASMFLAGS) $^
+	@$(NASM) -o $@ $(NASMFLAGS) $^
 
 $(OUTDIR)/%.c.o: src/%.c
 	@mkdir -p $(dir $@)
 	@echo "  CLANG    $@"
-	@clang -o $@ -c $(CFLAGS) $^
+	@$(CLANG) -o $@ -c $(CFLAGS) $^
 
 $(OUTDIR)/%.volt.o: src/%.volt
 	@mkdir -p $(dir $@)
 	@echo "  VOLT     $@"
-	@volt -o $@ -c $(VFLAGS) $^
+	@$(VOLT) -o $@ -c $(VFLAGS) $^
 
 $(METAL_ELF): $(OBJ) src/linker.ld
 	@echo "  LD       $@"
-	@ld -o $@ $(LDFLAGS) $(OBJ)
+	@$(LD) -o $@ $(LDFLAGS) $(OBJ)
 
 $(METAL_BIN): $(METAL_ELF)
 	@echo "  OBJCOPY  $@"
