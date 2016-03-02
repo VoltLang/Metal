@@ -16,9 +16,7 @@ METAL_ISO ?= metal.iso
 
 all: $(METAL_BIN)
 
-CSRC =
-ASMSRC = src/boot/multiboot.asm
-VOLTSRC = src/metal/main.volt src/metal/vga.volt
+include sources.mk
 COBJ = $(patsubst src/%.c, $(OUTDIR)/%.c.o, $(CSRC))
 ASMOBJ = $(patsubst src/%.asm, $(OUTDIR)/%.asm.o, $(ASMSRC))
 OBJ = $(COBJ) $(ASMOBJ)
