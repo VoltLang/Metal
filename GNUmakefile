@@ -21,8 +21,7 @@ ASMSRC = src/boot/multiboot.asm
 VOLTSRC = src/metal/main.volt src/metal/vga.volt
 COBJ = $(patsubst src/%.c, $(OUTDIR)/%.c.o, $(CSRC))
 ASMOBJ = $(patsubst src/%.asm, $(OUTDIR)/%.asm.o, $(ASMSRC))
-VOLTOBJ = $(OUTDIR)/volt.o
-OBJ = $(COBJ) $(ASMOBJ) $(VOLTOBJ)
+OBJ = $(COBJ) $(ASMOBJ)
 
 
 $(OUTDIR)/%.asm.o: src/%.asm
@@ -35,14 +34,9 @@ $(OUTDIR)/%.c.o: src/%.c
 	@echo "  CLANG    $@"
 	@$(CLANG) -o $@ -c $(CFLAGS) $^
 
-$(VOLTOBJ): $(VOLTSRC)
-	@mkdir -p $(dir $@)
-	@echo "  VOLT     $@"
-	@$(VOLT) -o $@ -c $(VFLAGS) $(VOLTSRC)
-
-$(METAL_ELF): $(OBJ) src/linker.ld
+$(METAL_ELF): $(OBJ) src/linker.ld $(VOLTSRC)
 	@echo "  LD       $@"
-	@$(LD) -o $@ $(LDFLAGS) $(OBJ)
+	@$(VOLT) -o $@ --linker $(LD) $(patsubst %, --Xlinker %, $(LDFLAGS)) $(OBJ) $(VFLAGS) $(VOLTSRC)
 
 $(METAL_BIN): $(METAL_ELF)
 	@echo "  OBJCOPY  $@"
