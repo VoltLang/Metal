@@ -7,7 +7,7 @@ QEMU ?= qemu-system-x86_64
 OUTDIR ?= .obj
 NASMFLAGS ?= -f elf32 -g3 -F dwarf
 CFLAGS ?= -g --target=i686-pc-none-elf -march=i686
-VFLAGS ?= -d --platform linux --arch x86
+VFLAGS ?= -d --platform metal --arch x86
 LDFLAGS ?= -n -T src/linker.ld
 
 METAL_ELF ?= metal.elf
