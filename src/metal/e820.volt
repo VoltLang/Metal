@@ -37,7 +37,7 @@ void fromMultiboot1(mb1.Info* info)
 	uint addr = info.mmap_addr;
 	uint end = addr + info.mmap_length;
 
-	foreach (ref e; map.entries[]) {
+	foreach (ref e; map.entries) {
 		if (addr >= end) {
 			break;
 		}
@@ -64,7 +64,7 @@ void fromMultiboot2(mb2.TagMmap* mmap)
 	uint size = mmap.entry_size;
 	uint end = cast(uint)mmap + mmap.size;
 
-	foreach (ref e; map.entries[]) {
+	foreach (ref e; map.entries) {
 		if (addr >= end) {
 			break;
 		}
