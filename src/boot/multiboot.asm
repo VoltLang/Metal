@@ -72,6 +72,15 @@ multiboot2_header:
 	dd (8 + 4)
 	dd multiboot_entry
 
+; framebuffer tag
+;	align 8
+;	dw 5
+;	dw 0x00
+;	dd (8 + 4 + 4 + 4)
+;	dd 0
+;	dd 0
+;	dd 32
+
 ; end tag
 	align 8
 	dw 0x00
