@@ -63,3 +63,23 @@ struct MmapEntry
 	Memory type;
 	uint zero;
 }
+
+enum FramebufferType : uint
+{
+	INDEXED = 0x00,
+	RGB     = 0x01,
+	VGA     = 0x02,
+}
+
+struct TagFramebuffer
+{
+	TagType type;
+	uint size;
+	ulong framebuffer_addr;
+	uint framebuffer_pitch;
+	uint framebuffer_width;
+	uint framebuffer_height;
+	ubyte framebuffer_bpp;
+	ubyte framebuffer_type;
+	ubyte reserved;
+}
