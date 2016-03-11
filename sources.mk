@@ -1,9 +1,12 @@
 
 CSRC =
 
-ASMSRC = src/boot/multiboot.asm
+ASMSRC = \
+	src/arch/x86/ioports.asm \
+	src/boot/multiboot.asm
 
 VOLTSRC = \
+	src/arch/x86/ioports.volt \
 	src/metal/boot/multiboot1.volt \
 	src/metal/boot/multiboot2.volt \
 	src/metal/e820.volt \
