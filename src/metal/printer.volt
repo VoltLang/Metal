@@ -4,28 +4,45 @@ module metal.printer;
 
 
 alias Sink = scope void delegate(scope const(char)[]);
+global Sink sink;
 
 char valToHex(int v)
 {
 	v = v & 0x0f;
 	v = v + '0';
 	if (v > '9') {
-		v += 'A' - '9';
+		v += 'A' - '9' - 1;
 	}
 	return cast(char)v;
 }
 
-void writeHex(Sink s, ubyte v)
+void write(scope const(char)[] a)
+{
+	sink(a);
+}
+
+void writeln()
+{
+	sink("\n");
+}
+
+void writeln(scope const(char)[] a)
+{
+	sink(a);
+	sink("\n");
+}
+
+void writeHex(ubyte v)
 {
 	char[2] buf;
 
 	buf[0] = valToHex(v >>  4);
 	buf[1] = valToHex(v >>  0);
 
-	s(buf);
+	sink(buf);
 }
 
-void writeHex(Sink s, ushort v)
+void writeHex(ushort v)
 {
 	char[4] buf;
 
@@ -34,12 +51,12 @@ void writeHex(Sink s, ushort v)
 	buf[2] = valToHex(v >>  4);
 	buf[3] = valToHex(v >>  0);
 
-	s(buf);
+	sink(buf);
 }
 
-void writeHex(Sink s, uint hex)
+void writeHex(uint hex)
 {
-	char[8] buf;	
+	char[8] buf;
 
 	foreach (i, ref c; buf) {
 		auto v = hex >> 28;
@@ -48,5 +65,19 @@ void writeHex(Sink s, uint hex)
 		hex = hex << 4;
 	}
 
-	s(buf);
+	sink(buf);
+}
+
+void writeHex(ulong hex)
+{
+	char[16] buf;
+
+	foreach (i, ref c; buf) {
+		auto v = hex >> 60;
+
+		c = valToHex(cast(int) v);
+		hex = hex << 4;
+	}
+
+	sink(buf);
 }

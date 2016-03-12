@@ -3,6 +3,7 @@
 module metal.e820;
 
 import metal.vga;
+import metal.printer;
 import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;
 
@@ -82,9 +83,9 @@ void fromMultiboot2(mb2.TagMmap* mmap)
 void dumpMap()
 {
 	foreach (ref e; map.entries[0 .. map.num]) {
-		terminal_hex(e.address); terminal_writestring(" ");
-		terminal_hex(e.size); terminal_writestring(" ");
-		terminal_hex(cast(uint)e.type);
-		terminal_newline();
+		writeHex(e.address); write(" ");
+		writeHex(e.size); write(" ");
+		writeHex(cast(uint)e.type);
+		writeln();
 	}
 }

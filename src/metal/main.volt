@@ -7,20 +7,21 @@ import e820 = metal.e820;
 import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;
 import metal.drivers.serial;
+import metal.printer;
 import metal.pci;
 
 
 extern(C) void metal_main(uint magic, void* multibootInfo)
 {
 	com1.setup(0x3f8);
-	com1.writeln("Volt Metal");
+	sink = com1.sink;
+	writeln("Volt Metal");
 
+	terminal_initialize();
 	terminal_writestring("Volt Metal");
 	terminal_newline();
 
 	parseMultiboot(magic, multibootInfo);
-
-	terminal_initialize();
 
 	e820.dumpMap();
 

@@ -190,10 +190,10 @@ void dumpDevice(ubyte bus, ubyte slot, ubyte func)
 	Header h;
 	readHeader(bus, slot, func, ref h);
 
-	com1.sink(buf);
-	com1.sink.writeHex(h.vendor); com1.write(" ");
-	com1.sink.writeHex(h.device); com1.write(" class: ");
-	com1.sink.writeHex(h.baseClass); com1.write(", sub: ");
-	com1.sink.writeHex(h.subClass); com1.write(", header: ");
-	com1.sink.writeHex(h.headerType); com1.writeln();
+	write(buf);
+	writeHex(h.vendor); com1.write(" ");
+	writeHex(h.device); com1.write(" class: ");
+	writeHex(h.baseClass); com1.write(", sub: ");
+	writeHex(h.subClass); com1.write(", header: ");
+	writeHex(h.headerType); com1.writeln();
 }
