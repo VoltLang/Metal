@@ -2,7 +2,6 @@
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 module metal.main;
 
-import metal.vga;
 import e820 = metal.e820;
 import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;
@@ -16,10 +15,6 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 	com1.setup(0x3f8);
 	sink = com1.sink;
 	writeln("Volt Metal");
-
-	terminal_initialize();
-	terminal_writestring("Volt Metal");
-	terminal_newline();
 
 	parseMultiboot(magic, multibootInfo);
 

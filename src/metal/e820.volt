@@ -2,7 +2,6 @@
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 module metal.e820;
 
-import metal.vga;
 import metal.printer;
 import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;

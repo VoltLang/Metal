@@ -15,5 +15,4 @@ VOLTSRC = \
 	src/metal/e820.volt \
 	src/metal/stdc.volt \
 	src/metal/vrt.volt \
-	src/metal/vga.volt \
 	src/metal/main.volt
