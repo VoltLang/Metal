@@ -10,6 +10,8 @@ VOLTSRC = \
 	src/metal/drivers/serial.volt \
 	src/metal/boot/multiboot1.volt \
 	src/metal/boot/multiboot2.volt \
+	src/metal/printer.volt \
+	src/metal/pci.volt \
 	src/metal/e820.volt \
 	src/metal/stdc.volt \
 	src/metal/vrt.volt \
