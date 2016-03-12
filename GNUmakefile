@@ -50,11 +50,11 @@ iso: $(METAL_ISO)
 
 run: $(METAL_BIN)
 	@echo "  QEMU     $^"
-	@qemu-system-x86_64 -kernel $^
+	@qemu-system-x86_64 -kernel $^ -serial stdio
 
 debug: $(METAL_BIN)
 	@echo "  QEMU     $^"
-	@qemu-system-x86_64 -kernel $^ -S -s &
+	@qemu-system-x86_64 -serial stdio -kernel $^ -S -s &
 	@gdb $(METAL_ELF) -ex 'target remote localhost:1234'
 
 clean:
