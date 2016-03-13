@@ -4,6 +4,8 @@ module arch.x86.ioports;
 
 
 extern(C) ubyte inb(ushort port);
+extern(C) ushort inw(ushort port);
 extern(C) uint inl(ushort port);
 extern(C) void outb(ushort port, ubyte val);
+extern(C) void outw(ushort port, ushort val);
 extern(C) void outl(ushort port, uint val);

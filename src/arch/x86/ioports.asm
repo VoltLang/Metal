@@ -2,8 +2,10 @@
 ; See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 [BITS 32]
 [global outb]
+[global outw]
 [global outl]
 [global inb]
+[global inw]
 [global inl]
 
 
@@ -14,6 +16,15 @@ inb:
 	movzx edx, word [ebp+0x8]
 	in al, dx
 	movzx eax, al
+	pop ebp
+	ret
+
+inw:
+	push ebp
+	mov ebp,esp
+	movzx edx, word [ebp+0x8]
+	in ax, dx
+	movzx eax, ax
 	pop ebp
 	ret
 
@@ -31,6 +42,15 @@ outb:
 	movzx edx, word [ebp+0x8]
 	mov al, [ebp+0xc]
 	out dx, al
+	pop ebp
+	ret
+
+outw:
+	push ebp
+	mov ebp, esp
+	movzx eax, word [ebp+0xc]
+	movzx edx, word [ebp+0x8]
+	out dx, ax
 	pop ebp
 	ret
 
