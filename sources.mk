@@ -13,6 +13,7 @@ VOLTSRC = \
 	src/metal/boot/multiboot2.volt \
 	src/metal/printer.volt \
 	src/metal/pci.volt \
+	src/metal/gfx.volt \
 	src/metal/e820.volt \
 	src/metal/stdc.volt \
 	src/metal/vrt.volt \
