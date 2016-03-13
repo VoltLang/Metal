@@ -5,6 +5,7 @@ module metal.pci;
 import metal.drivers.serial;
 import metal.printer;
 import arch.x86.ioports;
+import bochs = metal.drivers.bosch;
 
 
 enum Offset : ubyte {
@@ -36,6 +37,30 @@ struct Header
 	ubyte BIST;
 }
 
+struct Device
+{
+	ubyte bus, slot, func, headerType;
+	ushort vendor, device;
+	ubyte rev, progIF, subClass, baseClass;
+}
+
+struct Info {
+	Device[256] devs;
+	uint num;
+}
+
+global Info info;
+
+/**
+ * Load a given device.
+ */
+void loadDevice(Device* dev)
+{
+	if (dev.vendor == 0x1234 && dev.device == 0x1111) {
+		bochs.loadFromPCI(dev);
+	}
+}
+
 /**
  * Is there a device there?
  */
@@ -54,6 +79,19 @@ void checkFunction(ubyte bus, ubyte slot, ubyte func)
 
 	Header h;
 	readHeader(bus, slot, func, ref h);
+
+	auto dev = &info.devs[info.num++];
+	dev.bus = bus;
+	dev.slot = slot;
+	dev.func = func;
+	dev.headerType = h.headerType;
+	dev.vendor = h.vendor;
+	dev.device = h.device;
+	dev.rev = h.rev;
+	dev.progIF = h.progIF;
+	dev.subClass = h.subClass;
+	dev.baseClass = h.baseClass;
+
 
 	if ((h.baseClass == 0x06) && (h.subClass == 0x04)) {
 		ubyte secondaryBus = readUbyte(bus, slot, func, Offset.SECONDARY_BUS);
@@ -108,6 +146,10 @@ void checkAllBuses()
 			}
 			checkBus(func);
 		}
+	}
+
+	foreach (ref dev; info.devs[0 .. info.num]) {
+		loadDevice(&dev);
 	}
 }
 

@@ -3,6 +3,8 @@
 module metal.drivers.bosch;
 
 import arch.x86.ioports;
+import l = metal.printer;
+import pci = metal.pci;
 
 
 enum ushort BGA_DISPI_IOPORT_INDEX          = 0x01CE;
@@ -35,6 +37,73 @@ enum ubyte BGA_DISPI_LFB_ENABLED            = 0x40;
 enum ubyte BGA_DISPI_NOCLEARMEM             = 0x80;
 
 
+struct Bochs
+{
+	void* ptr;
+	ushort w;
+	ushort h;
+	ushort pitch;
+	ushort bpp;
+
+	bool loaded;
+
+	.pci.Device* pci;
+}
+
+global Bochs dev;
+
+void loadFromPCI(pci.Device* pciDev)
+{
+	dev.pci = pciDev;
+	auto bar1 = pci.readUint(pciDev.bus, pciDev.slot, pciDev.func, 0x10);
+
+	l.write("Bochs ");
+	l.writeHex(bar1);
+	l.writeln();
+
+	dev.ptr = cast(void*)(bar1 & 0xFFFFFFF0u);
+	readLayout(&dev);
+	if (dev.pitch == 0 || dev.bpp != 32) {
+		setLayout(&dev, 800, 600, 32);
+	}
+
+	dev.loaded = true;
+}
+
+void readLayout(Bochs* dev)
+{
+	dev.w = read(BGA_DISPI_INDEX_XRES);
+	dev.h = read(BGA_DISPI_INDEX_YRES);
+	dev.bpp = read(BGA_DISPI_INDEX_BPP);
+	dev.pitch = cast(ushort)(read(BGA_DISPI_INDEX_VIRT_WIDTH) * (dev.bpp / 8));
+}
+
+void setLayout(Bochs* dev, ushort w, ushort h, ushort bpp)
+{
+	dev.pitch = cast(ushort)(w * (bpp / 8));
+	dev.w = w;
+	dev.h = h;
+	dev.bpp = bpp;
+
+	write(BGA_DISPI_INDEX_BPP,         bpp);
+	write(BGA_DISPI_INDEX_XRES,        w);
+	write(BGA_DISPI_INDEX_YRES,        h);
+	write(BGA_DISPI_INDEX_BANK,        0);
+	write(BGA_DISPI_INDEX_VIRT_WIDTH,  w);
+	write(BGA_DISPI_INDEX_VIRT_HEIGHT, h);
+	write(BGA_DISPI_INDEX_X_OFFSET,    0);
+	write(BGA_DISPI_INDEX_Y_OFFSET,    0);
+	write(BGA_DISPI_INDEX_ENABLE,
+		cast(ushort)(BGA_DISPI_ENABLED | BGA_DISPI_LFB_ENABLED));
+}
+
+
+/*
+ *
+ * Access functions.
+ *
+ */
+
 ushort read(ushort reg)
 {
 	outw(BGA_DISPI_IOPORT_INDEX, reg);
@@ -45,18 +114,4 @@ void write(ushort reg, ushort val)
 {
 	outw(BGA_DISPI_IOPORT_INDEX, reg);
 	outw(BGA_DISPI_IOPORT_DATA, val);
-}
-
-void test()
-{
-	write(BGA_DISPI_INDEX_BPP,         32);
-	write(BGA_DISPI_INDEX_XRES,        800);
-	write(BGA_DISPI_INDEX_YRES,        600);
-	write(BGA_DISPI_INDEX_BANK,        0);
-	write(BGA_DISPI_INDEX_VIRT_WIDTH,  800);
-	write(BGA_DISPI_INDEX_VIRT_HEIGHT, 600);
-	write(BGA_DISPI_INDEX_X_OFFSET,    0);
-	write(BGA_DISPI_INDEX_Y_OFFSET,    0);
-	write(BGA_DISPI_INDEX_ENABLE,
-		cast(ushort)(BGA_DISPI_ENABLED | BGA_DISPI_LFB_ENABLED));
 }

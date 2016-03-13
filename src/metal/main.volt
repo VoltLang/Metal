@@ -22,8 +22,6 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 	e820.dumpMap();
 
 	checkAllBuses();
-
-	bga.test();
 }
 
 /**
