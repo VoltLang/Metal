@@ -6,9 +6,11 @@ import e820 = metal.e820;
 import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;
 import bga = metal.drivers.bosch;
+import gfx = metal.gfx;
 import metal.drivers.serial;
 import metal.printer;
 import metal.pci;
+import metal.stdc;
 
 
 extern(C) void metal_main(uint magic, void* multibootInfo)
@@ -22,6 +24,17 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 	e820.dumpMap();
 
 	checkAllBuses();
+
+	if (bga.dev.loaded) {
+		gfx.info.ptr = bga.dev.ptr;
+		gfx.info.w = bga.dev.w;
+		gfx.info.h = bga.dev.h;
+		gfx.info.pitch = bga.dev.pitch;
+	}
+
+	if (gfx.info.ptr !is null) {
+		return gfx.scribble();
+	}
 }
 
 /**
@@ -46,6 +59,7 @@ void parseMultiboot1(mb1.Info* info)
 void parseMultiboot2(mb2.Info* info)
 {
 	mb2.TagMmap* mmap;
+	mb2.TagFramebuffer* fb;
 
 	// Frist search the tags for the mmap tag.
 	auto tag = cast(mb2.Tag*)&info[1];
@@ -53,6 +67,9 @@ void parseMultiboot2(mb2.Info* info)
 		switch (tag.type) with (mb2.TagType) {
 		case MMAP:
 			mmap = cast(typeof(mmap))tag;
+			break;
+		case FRAMEBUFFER:
+			fb = cast(typeof(fb))tag;
 			break;
 		default:
 		}
@@ -67,5 +84,12 @@ void parseMultiboot2(mb2.Info* info)
 
 	if (mmap !is null) {
 		e820.fromMultiboot2(mmap);
+	}
+
+	if (fb !is null) {
+		gfx.info.ptr = cast(void*)fb.framebuffer_addr;
+		gfx.info.pitch = fb.framebuffer_pitch;
+		gfx.info.w = fb.framebuffer_width;
+		gfx.info.h = fb.framebuffer_height;
 	}
 }
