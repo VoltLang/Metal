@@ -27,6 +27,9 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 		gfx.info.w = bochs.dev.w;
 		gfx.info.h = bochs.dev.h;
 		gfx.info.pitch = bochs.dev.pitch;
+		gfx.info.pixelOffX = 8;
+		gfx.info.pixelOffY = 8;
+		sink = gfx.info.sink;
 	}
 
 	writeln("Volt Metal");
