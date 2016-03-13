@@ -3,13 +3,13 @@
 module metal.main;
 
 import e820 = metal.e820;
+import bochs = metal.drivers.bochs;
 import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;
 import gfx = metal.gfx;
-import bochs = metal.drivers.bochs;
+import pci = metal.pci;
 import metal.drivers.serial;
 import metal.printer;
-import metal.pci;
 import metal.stdc;
 
 
@@ -17,13 +17,10 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 {
 	com1.setup(0x3f8);
 	sink = com1.sink;
-	writeln("Volt Metal");
 
 	parseMultiboot(magic, multibootInfo);
 
-	e820.dumpMap();
-
-	checkAllBuses();
+	pci.checkAllBuses();
 
 	if (bochs.dev.loaded) {
 		gfx.info.ptr = bochs.dev.ptr;
@@ -32,9 +29,9 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 		gfx.info.pitch = bochs.dev.pitch;
 	}
 
-	if (gfx.info.ptr !is null) {
-		return gfx.scribble();
-	}
+	writeln("Volt Metal");
+	e820.dumpMap();
+	pci.dumpDevices();
 }
 
 /**

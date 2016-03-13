@@ -75,8 +75,6 @@ bool isValidDevice(ubyte bus, ubyte slot, ubyte func)
  */
 void checkFunction(ubyte bus, ubyte slot, ubyte func)
 {
-	dumpDevice(bus, slot, func);
-
 	Header h;
 	readHeader(bus, slot, func, ref h);
 
@@ -210,32 +208,24 @@ ubyte readUbyte(ubyte bus, ubyte slot, ubyte func, ubyte offset)
 	return cast(ubyte) (read >> shift);
 }
 
-
-/*
- *
- * Temporary dump functions.
- *
- */
-
-void dumpDevice(ubyte bus, ubyte slot, ubyte func)
+void dumpDevices()
 {
-	char[8] buf;
-	buf[0] = valToHex(bus >> 8);
-	buf[1] = valToHex(bus     );
-	buf[2] = ':';
-	buf[3] = valToHex(slot >> 8);
-	buf[4] = valToHex(slot     );
-	buf[5] = '.';
-	buf[6] = valToHex(func);
-	buf[7] = ' ';
+	foreach (ref dev; info.devs[0 .. info.num]) {
+		char[8] buf;
+		buf[0] = valToHex(dev.bus >> 8);
+		buf[1] = valToHex(dev.bus     );
+		buf[2] = ':';
+		buf[3] = valToHex(dev.slot >> 8);
+		buf[4] = valToHex(dev.slot     );
+		buf[5] = '.';
+		buf[6] = valToHex(dev.func);
+		buf[7] = ' ';
 
-	Header h;
-	readHeader(bus, slot, func, ref h);
-
-	write(buf);
-	writeHex(h.vendor); com1.write(" ");
-	writeHex(h.device); com1.write(" class: ");
-	writeHex(h.baseClass); com1.write(", sub: ");
-	writeHex(h.subClass); com1.write(", header: ");
-	writeHex(h.headerType); com1.writeln();
+		write(buf);
+		writeHex(dev.vendor); write(" ");
+		writeHex(dev.device); write(" class: ");
+		writeHex(dev.baseClass); write(", sub: ");
+		writeHex(dev.subClass); write(", header: ");
+		writeHex(dev.headerType); writeln();
+	}
 }

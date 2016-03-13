@@ -57,10 +57,6 @@ void loadFromPCI(pci.Device* pciDev)
 	dev.pci = pciDev;
 	auto bar1 = pci.readUint(pciDev.bus, pciDev.slot, pciDev.func, 0x10);
 
-	l.write("Bochs ");
-	l.writeHex(bar1);
-	l.writeln();
-
 	dev.ptr = cast(void*)(bar1 & 0xFFFFFFF0u);
 	readLayout(&dev);
 	if (dev.pitch == 0 || dev.bpp != 32) {
