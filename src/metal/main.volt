@@ -5,6 +5,7 @@ module metal.main;
 import e820 = metal.e820;
 import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;
+import bga = metal.drivers.bosch;
 import metal.drivers.serial;
 import metal.printer;
 import metal.pci;
@@ -21,6 +22,8 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 	e820.dumpMap();
 
 	checkAllBuses();
+
+	bga.test();
 }
 
 /**
