@@ -5,8 +5,8 @@ module metal.main;
 import e820 = metal.e820;
 import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;
-import bga = metal.drivers.bosch;
 import gfx = metal.gfx;
+import bochs = metal.drivers.bochs;
 import metal.drivers.serial;
 import metal.printer;
 import metal.pci;
@@ -25,11 +25,11 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 
 	checkAllBuses();
 
-	if (bga.dev.loaded) {
-		gfx.info.ptr = bga.dev.ptr;
-		gfx.info.w = bga.dev.w;
-		gfx.info.h = bga.dev.h;
-		gfx.info.pitch = bga.dev.pitch;
+	if (bochs.dev.loaded) {
+		gfx.info.ptr = bochs.dev.ptr;
+		gfx.info.w = bochs.dev.w;
+		gfx.info.h = bochs.dev.h;
+		gfx.info.pitch = bochs.dev.pitch;
 	}
 
 	if (gfx.info.ptr !is null) {

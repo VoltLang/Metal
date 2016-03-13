@@ -1,6 +1,6 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
-module metal.drivers.bosch;
+module metal.drivers.bochs;
 
 import arch.x86.ioports;
 import l = metal.printer;

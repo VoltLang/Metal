@@ -5,7 +5,7 @@ module metal.pci;
 import metal.drivers.serial;
 import metal.printer;
 import arch.x86.ioports;
-import bochs = metal.drivers.bosch;
+import bochs = metal.drivers.bochs;
 
 
 enum Offset : ubyte {
