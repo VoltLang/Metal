@@ -91,5 +91,8 @@ void parseMultiboot2(mb2.Info* info)
 		gfx.info.pitch = fb.framebuffer_pitch;
 		gfx.info.w = fb.framebuffer_width;
 		gfx.info.h = fb.framebuffer_height;
+		gfx.info.pixelOffX = 8;
+		gfx.info.pixelOffY = 8;
+		sink = gfx.info.sink;
 	}
 }
