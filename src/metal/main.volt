@@ -15,8 +15,11 @@ import metal.stdc;
 
 extern(C) void metal_main(uint magic, void* multibootInfo)
 {
-	com1.setup(0x3f8);
-	sink = com1.sink;
+	writeln("Volt Metal");
+
+	writeln("serial: Setting up 0x03F8");
+	com1.setup(0x03F8);
+	ring.addSink(com1.sink);
 
 	parseMultiboot(magic, multibootInfo);
 
@@ -29,10 +32,9 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 		gfx.info.pitch = bochs.dev.pitch;
 		gfx.info.pixelOffX = 8;
 		gfx.info.pixelOffY = 8;
-		sink = gfx.info.sink;
+		ring.addSink(gfx.info.sink);
 	}
 
-	writeln("Volt Metal");
 	e820.dumpMap();
 	pci.dumpDevices();
 	dumpMultiboot(magic, multibootInfo);
@@ -116,6 +118,6 @@ void parseMultiboot2(mb2.Info* info)
 		gfx.info.h = fb.framebuffer_height;
 		gfx.info.pixelOffX = 8;
 		gfx.info.pixelOffY = 8;
-		sink = gfx.info.sink;
+		ring.addSink(gfx.info.sink);
 	}
 }

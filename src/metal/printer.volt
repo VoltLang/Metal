@@ -3,8 +3,7 @@
 module metal.printer;
 
 
-alias Sink = scope void delegate(scope const(char)[]);
-global Sink sink;
+alias Sink = void delegate(scope const(char)[]);
 
 char valToHex(int v)
 {
@@ -18,18 +17,18 @@ char valToHex(int v)
 
 void write(scope const(char)[] a)
 {
-	sink(a);
+	ring.put(a);
 }
 
 void writeln()
 {
-	sink("\n");
+	ring.put("\n");
 }
 
 void writeln(scope const(char)[] a)
 {
-	sink(a);
-	sink("\n");
+	ring.put(a);
+	ring.put("\n");
 }
 
 void writeHex(ubyte v)
@@ -39,7 +38,7 @@ void writeHex(ubyte v)
 	buf[0] = valToHex(v >>  4);
 	buf[1] = valToHex(v >>  0);
 
-	sink(buf);
+	ring.put(buf);
 }
 
 void writeHex(ushort v)
@@ -51,7 +50,7 @@ void writeHex(ushort v)
 	buf[2] = valToHex(v >>  4);
 	buf[3] = valToHex(v >>  0);
 
-	sink(buf);
+	ring.put(buf);
 }
 
 void writeHex(uint hex)
@@ -65,7 +64,7 @@ void writeHex(uint hex)
 		hex = hex << 4;
 	}
 
-	sink(buf);
+	ring.put(buf);
 }
 
 void writeHex(ulong hex)
@@ -79,5 +78,48 @@ void writeHex(ulong hex)
 		hex = hex << 4;
 	}
 
-	sink(buf);
+	ring.put(buf);
 }
+
+struct Ring
+{
+	char[10258] buf;
+	Sink[4] sinks;
+	uint writePos;
+	uint numSinks;
+
+	void put(scope const(char)[] str)
+	{
+		foreach (s; sinks[0 .. numSinks]) {
+			s(str);
+		}
+
+		foreach (char c; str) {
+			buf[writePos++] = c;
+			if (writePos > buf.length) {
+				writePos = 0;
+			}
+		}
+	}
+
+	void addSink(Sink sink)
+	{
+		sinks[numSinks++] = sink;
+		print(sink);
+	}
+
+	void print(Sink sink)
+	{
+		auto t = buf[writePos .. buf.length];
+		if (t.length != 0 && t[0] != '\0') {
+			sink(t);
+		}
+
+		t = buf[0 .. writePos];
+		if (t.length != 0) {
+			sink(t);
+		}
+	}
+}
+
+global Ring ring;
