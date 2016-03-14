@@ -35,6 +35,29 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 	writeln("Volt Metal");
 	e820.dumpMap();
 	pci.dumpDevices();
+	dumpMultiboot(magic, multibootInfo);
+}
+
+void dumpMultiboot(uint magic, void* ptr)
+{
+	if (magic != mb2.Magic) {
+		return;
+	}
+
+	auto info = cast(mb2.Info*) ptr;
+	auto tag = cast(mb2.Tag*)&info[1];
+	while (tag.type != mb2.TagType.END) {
+		writeHex(cast(ubyte)tag.type); write(" ");
+		writeHex(tag.size); writeln("");
+
+
+		// Get new address and align.
+		auto addr = cast(size_t)tag + tag.size;
+		if (addr % 8) {
+			addr += 8 - addr % 8;
+		}
+		tag = cast(mb2.Tag*)addr;
+	}
 }
 
 /**
