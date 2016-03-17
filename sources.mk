@@ -1,5 +1,6 @@
 
-CSRC =
+CSRC = \
+	src/boot/boot.c
 
 ASMSRC = \
 	src/arch/x86/ioports.asm \

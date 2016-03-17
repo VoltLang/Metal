@@ -98,6 +98,15 @@ multiboot_entry:
 	mov esp, stack_top
 
 	; Call this function.
+	; void boot_main()
+	extern boot_main
+	push ebx
+	push eax
+	call boot_main
+	pop eax
+	pop ebx
+
+	; Call this function.
 	; void metal_main(int magic, void* info)
 	extern metal_main
 	push ebx
