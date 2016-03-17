@@ -67,6 +67,12 @@ void dumpMultiboot(uint magic, void* ptr)
  */
 void parseMultiboot(uint magic, void* ptr)
 {
+	write("mb: ");
+	writeHex(magic);
+	write(" ");
+	writeHex(cast(size_t)ptr);
+	writeln("");
+
 	if (magic == mb1.Magic) {
 		return parseMultiboot1(cast(mb1.Info*)ptr);
 	} else if (magic == mb2.Magic) {
