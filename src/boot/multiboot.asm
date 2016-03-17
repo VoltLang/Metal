@@ -6,7 +6,7 @@ extern __bss_end
 
 ; We put this in its own section so that along with a linker script we are
 ; certain that it ends up at the start of the binary.
-section .multiboot
+section .boot_header
 _start:
 	xor eax, eax
 	xor ebx, ebx
