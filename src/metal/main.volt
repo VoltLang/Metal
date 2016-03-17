@@ -32,7 +32,7 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 		gfx.info.pitch = bochs.dev.pitch;
 		gfx.info.pixelOffX = 8;
 		gfx.info.pixelOffY = 8;
-		ring.addSink(gfx.info.sink);
+		gfx.info.installSink();
 	}
 
 	e820.dumpMap();
@@ -118,6 +118,6 @@ void parseMultiboot2(mb2.Info* info)
 		gfx.info.h = fb.framebuffer_height;
 		gfx.info.pixelOffX = 8;
 		gfx.info.pixelOffY = 8;
-		ring.addSink(gfx.info.sink);
+		gfx.info.installSink();
 	}
 }

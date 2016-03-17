@@ -20,6 +20,17 @@ struct Info
 	uint x;
 	uint y;
 
+	bool loaded;
+
+	void installSink()
+	{
+		if (loaded) {
+			return;
+		}
+		loaded = true;
+		l.ring.addSink(sink);
+	}
+
 	void sink(scope const(char)[] str)
 	{
 		foreach (char c; str) {
