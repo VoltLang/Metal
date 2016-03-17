@@ -1,6 +1,6 @@
 /* Both are needed, because elf32-i386 means x86_64 on a 64bit machine */
-OUTPUT_FORMAT("elf32-i386")
-OUTPUT_ARCH("i386")
+OUTPUT_FORMAT("elf64-x86-64")
+OUTPUT_ARCH("i386:x86-64")
 ENTRY(_start)
 
 SECTIONS

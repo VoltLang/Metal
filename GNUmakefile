@@ -5,9 +5,9 @@ NASM ?= nasm
 CLANG ?= clang
 QEMU ?= qemu-system-x86_64
 OUTDIR ?= .obj
-NASMFLAGS ?= -f elf32 -g3 -F dwarf
-CFLAGS ?= -g --target=i686-pc-none-elf -march=i686
-VFLAGS ?= -d --platform metal --arch x86
+NASMFLAGS ?= -f elf64 -g3 -F dwarf
+CFLAGS ?= -g --target=x86_64-pc-none-elf
+VFLAGS ?= -d --platform metal --arch x86_64
 LDFLAGS ?= -n -T src/linker.ld --gc-sections
 
 METAL_ELF ?= metal.elf

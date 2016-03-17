@@ -3,7 +3,8 @@ CSRC = \
 	src/boot/boot.c
 
 ASMSRC = \
-	src/arch/x86/ioports.asm \
+	src/arch/x86_64/ioports.asm \
+	src/boot/switch.asm \
 	src/boot/multiboot.asm
 
 VOLTSRC = \

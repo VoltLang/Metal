@@ -3,6 +3,7 @@
 
 extern __data_end
 extern __bss_end
+extern start32
 
 ; We put this in its own section so that along with a linker script we are
 ; certain that it ends up at the start of the binary.
@@ -10,7 +11,7 @@ section .boot_header
 _start:
 	xor eax, eax
 	xor ebx, ebx
-	jmp multiboot_entry
+	jmp start32
 
 
 
@@ -34,7 +35,7 @@ multiboot1_header:
 	dd _start
 	dd __data_end
 	dd __bss_end
-	dd multiboot_entry
+	dd start32
 multiboot1_end:
 
 
@@ -70,7 +71,7 @@ multiboot2_header:
 	dw 3
 	dw 0x00
 	dd (8 + 4)
-	dd multiboot_entry
+	dd start32
 
 ; framebuffer tag
 	align 8
@@ -89,39 +90,3 @@ multiboot2_header:
 multiboot2_end:
 
 
-
-; Short bootstrap code to setup the stack and jump to metal_main function.
-
-align 16
-multiboot_entry:
-	; Setup this stack
-	mov esp, stack_top
-
-	; Call this function.
-	; void boot_main()
-	extern boot_main
-	push ebx
-	push eax
-	call boot_main
-	pop eax
-	pop ebx
-
-	; Call this function.
-	; void metal_main(int magic, void* info)
-	extern metal_main
-	push ebx
-	push eax
-	call metal_main
-
-	; Disable interupts and hang
-	cli
-multiboot_hang:
-	hlt
-	jmp multiboot_hang
-
-
-section .bss
-align 4
-stack_bottom:
-resb 16384
-stack_top:
