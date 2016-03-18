@@ -8,6 +8,7 @@ import mb1 = metal.boot.multiboot1;
 import mb2 = metal.boot.multiboot2;
 import gfx = metal.gfx;
 import pci = metal.pci;
+import acpi = metal.acpi;
 import metal.drivers.serial;
 import metal.printer;
 import metal.stdc;
@@ -66,6 +67,21 @@ void dumpMultiboot(uint magic, void* ptr)
 	}
 }
 
+void dumpACPI(acpi.RSDPDescriptor* dec)
+{
+	auto rsdt = cast(acpi.RSDT*) dec.rsdtAddress;
+	write("acpi: "); write(rsdt.h.signature); write(" ");
+	writeHex(rsdt.h.length); write(" ");
+	writeHex(cast(size_t)rsdt); writeln("");
+
+	foreach (a; rsdt.array) {
+		auto h = cast(acpi.Header*) a;
+		write("acpi: "); write(h.signature); write(" ");
+		writeHex(h.length); write(" ");
+		writeHex(cast(size_t)h); writeln("");
+	}
+}
+
 /**
  * Setup various devices and memory from multiboot information.
  */
@@ -98,6 +114,7 @@ void parseMultiboot2(mb2.Info* info)
 	mb2.TagMmap* mmap;
 	mb2.TagFramebuffer* fb;
 	mb2.TagOldACPI* oldACPI;
+	mb2.TagNewACPI* newACPI;
 
 	// Frist search the tags for the mmap tag.
 	auto tag = cast(mb2.Tag*)&info[1];
@@ -112,6 +129,9 @@ void parseMultiboot2(mb2.Info* info)
 		case ACPI_OLD:
 			oldACPI = cast(typeof(oldACPI))tag;
 			break;
+		case ACPI_NEW:
+			newACPI = cast(typeof(newACPI))tag;
+			break;
 		default:
 		}
 
@@ -125,6 +145,14 @@ void parseMultiboot2(mb2.Info* info)
 
 	if (mmap !is null) {
 		e820.fromMultiboot2(mmap);
+	}
+
+	if (oldACPI !is null && newACPI is null) {
+		dumpACPI(oldACPI.rsdp);
+	}
+
+	if (newACPI !is null) {
+		dumpACPI(&newACPI.rsdp.v1);
 	}
 
 	if (fb !is null) {

@@ -2,6 +2,8 @@
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 module metal.boot.multiboot2;
 
+import metal.acpi;
+
 
 enum Magic = 0x36d76289;
 
@@ -126,9 +128,10 @@ struct TagOldACPI
 {
 	TagType type;
 	uint size;
-	@property void* rsdp()
+
+	@property RSDPDescriptor* rsdp()
 	{
-		return cast(void*)&(&this)[1];
+		return cast(RSDPDescriptor*)&(&this)[1];
 	}
 }
 
@@ -136,9 +139,10 @@ struct TagNewACPI
 {
 	TagType type;
 	uint size;
-	@property void* rsdp()
+
+	@property RSDPDescriptor20* rsdp()
 	{
-		return cast(void*)&(&this)[1];
+		return cast(RSDPDescriptor20*)&(&this)[1];
 	}
 }
 
