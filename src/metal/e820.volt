@@ -82,6 +82,7 @@ void fromMultiboot2(mb2.TagMmap* mmap)
 void dumpMap()
 {
 	foreach (ref e; map.entries[0 .. map.num]) {
+		write("e820: ");
 		writeHex(e.address); write(" ");
 		writeHex(e.size); write(" ");
 		writeHex(cast(uint)e.type);

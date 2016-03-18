@@ -221,6 +221,7 @@ void dumpDevices()
 		buf[6] = valToHex(dev.func);
 		buf[7] = ' ';
 
+		write("pci: ");
 		write(buf);
 		writeHex(dev.vendor); write(" ");
 		writeHex(dev.device); write(" class: ");
