@@ -37,7 +37,6 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 
 	e820.dumpMap();
 	pci.dumpDevices();
-	dumpMultiboot(magic, multibootInfo);
 }
 
 void dumpMultiboot(uint magic, void* ptr)
@@ -49,9 +48,14 @@ void dumpMultiboot(uint magic, void* ptr)
 	auto info = cast(mb2.Info*) ptr;
 	auto tag = cast(mb2.Tag*)&info[1];
 	while (tag.type != mb2.TagType.END) {
+		write("mb: ");
 		writeHex(cast(ubyte)tag.type); write(" ");
-		writeHex(tag.size); writeln("");
-
+		writeHex(tag.size); write(" ");
+		size_t i = tag.type;
+		if (i >= mb2.tagNames.length) {
+			i = mb2.tagNames.length - 1;
+		}
+		writeln(mb2.tagNames[i]);
 
 		// Get new address and align.
 		auto addr = cast(size_t)tag + tag.size;
@@ -73,6 +77,8 @@ void parseMultiboot(uint magic, void* ptr)
 	writeHex(cast(size_t)ptr);
 	writeln("");
 
+	dumpMultiboot(magic, ptr);
+
 	if (magic == mb1.Magic) {
 		return parseMultiboot1(cast(mb1.Info*)ptr);
 	} else if (magic == mb2.Magic) {
@@ -91,6 +97,7 @@ void parseMultiboot2(mb2.Info* info)
 {
 	mb2.TagMmap* mmap;
 	mb2.TagFramebuffer* fb;
+	mb2.TagOldACPI* oldACPI;
 
 	// Frist search the tags for the mmap tag.
 	auto tag = cast(mb2.Tag*)&info[1];
@@ -101,6 +108,9 @@ void parseMultiboot2(mb2.Info* info)
 			break;
 		case FRAMEBUFFER:
 			fb = cast(typeof(fb))tag;
+			break;
+		case ACPI_OLD:
+			oldACPI = cast(typeof(oldACPI))tag;
 			break;
 		default:
 		}

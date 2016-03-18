@@ -24,8 +24,32 @@ enum TagType : uint
 	ACPI_OLD         = 14,
 	ACPI_NEW         = 15,
 	NETWORK          = 16,
+	EFI_MMAP         = 17,
+	EFI_BS           = 18,
 }
 
+global immutable string[20] tagNames = [
+	"END",
+	"CMDLINE",
+	"BOOT_LOADER_NAME",
+	"MODULE",
+	"BASIC_MEMINFO",
+	"BOOTDEV",
+	"MMAP",
+	"VBE",
+	"FRAMEBUFFER",
+	"ELF_SECTIONS",
+	"APM",
+	"EFI32",
+	"EFI64",
+	"SMBIOS",
+	"ACPI_OLD",
+	"ACPI_NEW",
+	"NETWORK",
+	"EFI_MMAP",
+	"EFI_BS",
+	"UNKOWN",
+];
 
 struct Info
 {
@@ -82,4 +106,50 @@ struct TagFramebuffer
 	ubyte framebuffer_bpp;
 	ubyte framebuffer_type;
 	ubyte reserved;
+}
+
+struct TagEFI32
+{
+	TagType type;
+	uint size;
+	uint pointer;
+}
+
+struct TagEFI64
+{
+	TagType type;
+	uint size;
+	ulong pointer;
+}
+
+struct TagOldACPI
+{
+	TagType type;
+	uint size;
+	@property void* rsdp()
+	{
+		return cast(void*)&(&this)[1];
+	}
+}
+
+struct TagNewACPI
+{
+	TagType type;
+	uint size;
+	@property void* rsdp()
+	{
+		return cast(void*)&(&this)[1];
+	}
+}
+
+struct TagEFIMMAP
+{
+	TagType type;
+	uint size;
+	uint descr_size;
+	uint descr_vers;
+	@property void* mmap()
+	{
+		return cast(void*)&(&this)[1];
+	}
 }
