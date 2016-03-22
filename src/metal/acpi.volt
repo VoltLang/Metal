@@ -2,6 +2,9 @@
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 module metal.acpi;
 
+import l = metal.printer;
+import metal.stdc : memcmp;
+
 
 struct RSDPDescriptor
 {
@@ -17,7 +20,7 @@ struct RSDPDescriptor20
 	RSDPDescriptor v1;
 
 	uint length;
-	ulong xsdtAdress;
+	ulong xsdtAddress;
 	ubyte extendedChecksum;
 	ubyte[3] reserved;
 }
@@ -73,4 +76,29 @@ struct XSDT
 	{
 		return ptr[0 .. length];
 	}
+}
+
+void findX86(out RSDT* rsdt, out XSDT* xsdt)
+{
+	for (size_t ptr = 0; ptr < 0x100000; ptr += 16) {
+		if (memcmp(cast(void*)ptr, cast(void*)("RSD PTR ".ptr), 8) != 0) {
+			continue;
+		}
+
+		auto t = cast(RSDPDescriptor20*)ptr;
+		if (t.v1.revision >= 0) {
+			rsdt = cast(RSDT*) t.v1.rsdtAddress;
+		}
+
+		if (t.v1.revision >= 2) {
+			xsdt = cast(XSDT*) t.xsdtAddress;
+		}
+	}
+}
+
+void dump(Header* h)
+{
+	l.write("acpi: "); l.write(h.signature); l.write(" ");
+	l.writeHex(h.length); l.write(" ");
+	l.writeHex(cast(size_t)h); l.writeln("");
 }

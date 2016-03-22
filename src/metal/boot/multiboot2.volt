@@ -2,6 +2,7 @@
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 module metal.boot.multiboot2;
 
+import l = metal.printer;
 import metal.acpi;
 
 
@@ -155,5 +156,31 @@ struct TagEFIMMAP
 	@property void* mmap()
 	{
 		return cast(void*)&(&this)[1];
+	}
+}
+
+void dump(Info* info)
+{
+	if (info is null) {
+		return;
+	}
+
+	auto tag = cast(Tag*)&info[1];
+	while (tag.type != TagType.END) {
+		l.write("mb: ");
+		l.writeHex(cast(ubyte)tag.type); l.write(" ");
+		l.writeHex(tag.size); l.write(" ");
+		size_t i = tag.type;
+		if (i >= tagNames.length) {
+			i = tagNames.length - 1;
+		}
+		l.writeln(tagNames[i]);
+
+		// Get new address and align.
+		auto addr = cast(size_t)tag + tag.size;
+		if (addr % 8) {
+			addr += 8 - addr % 8;
+		}
+		tag = cast(Tag*)addr;
 	}
 }
