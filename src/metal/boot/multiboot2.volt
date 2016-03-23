@@ -6,7 +6,7 @@ import l = metal.printer;
 import metal.acpi;
 
 
-enum Magic = 0x36d76289;
+enum MAGIC = 0x36d76289;
 
 enum TagType : uint
 {
@@ -159,9 +159,11 @@ struct TagEFIMMAP
 	}
 }
 
-void dump(Info* info)
+void dump(uint magic, Info* info)
 {
-	if (info is null) {
+	// Turns out that info might be null but still be valid
+	// because grub might put it there (it does on EFI macs).
+	if (magic != MAGIC) {
 		return;
 	}
 

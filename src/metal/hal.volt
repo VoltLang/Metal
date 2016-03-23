@@ -17,7 +17,8 @@ struct Hal
 	acpi.RSDT* rsdt;
 	acpi.XSDT* xsdt;
 
-	mb2.Info* mb2Info;
+	uint multibootMagic;
+	mb2.Info* multibootInfo;
 }
 
 global Hal hal;
@@ -44,11 +45,12 @@ void parseMultiboot(uint magic, void* ptr)
 	l.writeHex(cast(size_t)ptr);
 	l.writeln("");
 
-	if (magic == mb1.Magic) {
+	hal.multibootMagic = magic;
+	if (magic == mb1.MAGIC) {
 		return parseMultiboot1(cast(mb1.Info*)ptr);
-	} else if (magic == mb2.Magic) {
-		hal.mb2Info = cast(mb2.Info*)ptr;
-		return parseMultiboot2(hal.mb2Info);
+	} else if (magic == mb2.MAGIC) {
+		hal.multibootInfo = cast(mb2.Info*)ptr;
+		return parseMultiboot2(hal.multibootInfo);
 	}
 }
 
@@ -124,12 +126,16 @@ void dumpACPI()
 	acpi.RSDT* rsdt = hal.rsdt;
 	acpi.XSDT* xsdt = hal.xsdt;
 
-	if (rsdt !is null) {
+	if (rsdt !is null && xsdt is null) {
 		acpi.dump(&rsdt.h);
 		foreach (a; rsdt.array) {
 			acpi.dump(cast(acpi.Header*) a);
 		}
+	} else if (rsdt !is null) {
+		l.writeln("acpi: Selecting XSDT over RDST");
+		acpi.dump(&rsdt.h);
 	}
+
 
 	if (xsdt !is null) {
 		acpi.dump(&xsdt.h);

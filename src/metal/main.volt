@@ -30,7 +30,7 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 		gfx.info.installSink();
 	}
 
-	mb2.dump(hal.hal.mb2Info);
+	mb2.dump(hal.hal.multibootMagic, hal.hal.multibootInfo);
 	hal.dumpACPI();
 	e820.dumpMap();
 	pci.dumpDevices();

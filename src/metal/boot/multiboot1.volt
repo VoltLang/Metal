@@ -3,7 +3,7 @@
 module metal.boot.multiboot1;
 
 
-enum Magic = 0x2BADB002;
+enum MAGIC = 0x2BADB002;
 
 struct Info
 {
