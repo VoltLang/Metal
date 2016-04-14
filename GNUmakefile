@@ -55,7 +55,8 @@ run: $(METAL_BIN)
 debug: $(METAL_BIN)
 	@echo "  QEMU     $^"
 	@qemu-system-x86_64 -serial stdio -kernel $^ -S -s &
-	@gdb $(METAL_ELF) -ex 'target remote localhost:1234'
+	@gdb $(METAL_ELF) -batch -ex 'target remote localhost:1234' -ex 'b boot_main' -ex 'c' -ex 'disconnect'
+	@gdb $(METAL_ELF) -ex 'set arch i386:x86-64' -ex 'target remote localhost:1234'
 
 clean:
 	@echo "  RM       "
