@@ -76,10 +76,10 @@ loop_pd:
 	or eax, 1 << 31
 	mov cr0, eax
 
-	jmp gdt64.code:start64
+	jmp gdt64.code:start64_compat
 
 bits 64
-start64:
+start64_compat:
 	mov ax, 0x0010
 	mov ds, ax
 	mov es, ax
@@ -91,29 +91,30 @@ start64:
 	mov rax, start64_nocompat
 	jmp rax
 	nop
+
 start64_nocompat:
 	lgdt [gdt64.pointer]
 
+start64:
 	; Now setup the enviroment to call C and Volt code.
 	mov rsp, stack_top - 8 ; Multiboot magic and pointer has been saved.
 
 	; Get the multiboot magic and pointer from stack.
-	pop rdi ; magic
-	mov rsi, rdi
-	mov eax, 0xFFFFFFFF
-	and rdi, rax
-	shr rsi, byte 0x20
+	pop r12                  ; magic
+	mov r13, r12             ; ptr
+	and r12, -1              ; magic = magic & 0xFFFFFFFF
+	shr r13, byte 0x20       ; ptr = ptr >> 32
 
 	; Call this function.
-	; void boot_main(int magic, void* info)
-	push rdi
-	push rsi
+	; void boot_main(int magic, void* ptr)
+	mov rdi, r12 ; magic
+	mov rsi, r13 ; ptr
 	call boot_main
 
 	; Call this function.
-	; void metal_main(int magic, void* info)
-	pop rsi ; ptr
-	pop rdi ; magic
+	; void metal_main(int magic, void* ptr)
+	mov rdi, r12 ; magic
+	mov rsi, r13 ; ptr
 	call metal_main
 
 	; Disable interupts and hang
