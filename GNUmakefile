@@ -10,6 +10,8 @@ CFLAGS ?= -g --target=x86_64-pc-none-elf
 VFLAGS ?= -d --platform metal --arch x86_64
 LDFLAGS ?= -n -T src/linker.ld --gc-sections
 
+METAL_QEMU_ARGS ?= -serial stdio
+
 METAL_ELF ?= metal.elf
 METAL_BIN ?= metal.bin
 METAL_ISO ?= metal.iso
@@ -50,11 +52,11 @@ iso: $(METAL_ISO)
 
 run: $(METAL_BIN)
 	@echo "  QEMU     $^"
-	@qemu-system-x86_64 -kernel $^ -serial stdio
+	@qemu-system-x86_64 -kernel $^ $(METAL_QEMU_ARGS)
 
 debug: $(METAL_BIN)
 	@echo "  QEMU     $^"
-	@qemu-system-x86_64 -serial stdio -kernel $^ -S -s &
+	@qemu-system-x86_64 -kernel $^ $(METAL_QEMU_ARGS) -S -s &
 	@gdb $(METAL_ELF) -batch -ex 'target remote localhost:1234' -ex 'b boot_main' -ex 'c' -ex 'disconnect'
 	@gdb $(METAL_ELF) -ex 'set arch i386:x86-64' -ex 'target remote localhost:1234'
 
