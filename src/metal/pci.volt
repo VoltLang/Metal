@@ -16,7 +16,63 @@ enum Offset : ubyte {
 	HEADER   = 0x0E,
 
 	SECONDARY_BUS = 0x19,
+
+	CAPABILITY_LIST = 0x34,
 }
+
+enum CapId : ubyte {
+	PM		= 0x01,	/* Power Management */
+	AGP		= 0x02,	/* Accelerated Graphics Port */
+	VPD		= 0x03,	/* Vital Product Data */
+	SLOT_ID		= 0x04,	/* Slot Identification */
+	MSI		= 0x05,	/* Message Signalled Interrupts */
+	CHSWP		= 0x06,	/* CompactPCI HotSwap */
+	PCIX		= 0x07,	/* PCI-X */
+	HT		= 0x08,	/* HyperTransport */
+	VNDR		= 0x09,	/* Vendor-Specific */
+	DBG		= 0x0A,	/* Debug port */
+	CCRC		= 0x0B,	/* CompactPCI Central Resource Control */
+	SHPC		= 0x0C,	/* PCI Standard Hot-Plug Controller */
+	SSVID		= 0x0D,	/* Bridge subsystem vendor/device ID */
+	AGP3		= 0x0E,	/* AGP Target PCI-PCI bridge */
+	SECDEV		= 0x0F,	/* Secure Device */
+	EXP		= 0x10,	/* PCI Express */
+	MSIX		= 0x11,	/* MSI-X */
+	SATA		= 0x12,	/* SATA Data/Index Conf. */
+	AF		= 0x13,	/* PCI Advanced Features */
+	EA		= 0x14,	/* PCI Enhanced Allocation */
+}
+
+enum CapOffset : ubyte {
+	LIST_ID		= 0,	/* Capability ID */
+	LIST_NEXT	= 1,	/* Next capability in the list */
+	FLAGS		= 2,	/* Capability defined flags (16 bits) */
+	SIZEOF		= 4,
+}
+
+enum CapNames = [
+	"N/A",
+	"PM",
+	"AGP",
+	"VPD",
+	"SLOT_ID",
+	"MSI",
+	"CHSWP",
+	"PCIX",
+	"HT",
+	"VNDR",
+	"DBG",
+	"CCRC",
+	"SHPC",
+	"SSVID",
+	"AGP3",
+	"SECDEV",
+	"EXP",
+	"MSIX",
+	"SATA",
+	"AF",
+	"EA",
+];
 
 struct Header
 {
@@ -42,6 +98,8 @@ struct Device
 	ubyte bus, slot, func, headerType;
 	ushort vendor, device;
 	ubyte rev, progIF, subClass, baseClass;
+
+	uint cap;
 }
 
 struct Info {
@@ -90,6 +148,16 @@ void checkFunction(ubyte bus, ubyte slot, ubyte func)
 	dev.subClass = h.subClass;
 	dev.baseClass = h.baseClass;
 
+	capPos := readUbyte(bus, slot, func, 0x34);
+	while (capPos != 0) {
+		readPos := cast(ubyte)(capPos + CapOffset.LIST_ID);
+		id := readUbyte(bus, slot, func, readPos);
+		readPos = cast(ubyte)(capPos + CapOffset.LIST_NEXT);
+		capPos = readUbyte(bus, slot, func, readPos);
+		if (id <= 31) {
+			dev.cap |= 1u << id;
+		}
+	}
 
 	if ((h.baseClass == 0x06) && (h.subClass == 0x04)) {
 		ubyte secondaryBus = readUbyte(bus, slot, func, Offset.SECONDARY_BUS);
@@ -227,6 +295,28 @@ void dumpDevices()
 		writeHex(dev.device); write(" class: ");
 		writeHex(dev.baseClass); write(", sub: ");
 		writeHex(dev.subClass); write(", header: ");
-		writeHex(dev.headerType); writeln();
+		writeHex(dev.headerType);
+
+		cap := dev.cap;
+		if (cap == 0) {
+			writeln();
+			continue;
+		}
+
+		write(", caps: ");
+		foreach (i, name; CapNames) {
+			bit := 1u << cast(uint)i;
+
+			if (!(dev.cap & (1u << i))) {
+				continue;
+			}
+			write(name);
+			cap = cap & ~bit;
+			if (cap) {
+				write(" ");
+			}
+		}
+
+		writeln();
 	}
 }
