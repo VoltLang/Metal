@@ -51,7 +51,6 @@ loop_pd:
 	stosd
 	xor eax, eax
 	stosd
-	pop eax
 	add ebx, 0x00200000
 	dec ecx
 	cmp ecx, 0
