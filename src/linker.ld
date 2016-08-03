@@ -5,21 +5,25 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 1M;
+	. = 1048576;
 	.text : {
 		*(.boot_header)
 		*(.boot_text)
 		*(.text)
-		. = ALIGN(4K);
 	}
+	. = ALIGN(4096);
 	.data : {
 		*(.data)
+		*(.data.*)
+	}
+	.rodata : {
 		*(.rodata)
-		__data_end = .;
-		. = ALIGN(4K);
+		*(.rodata.*)
 	}
+	PROVIDE(__data_end = .);
+	. = ALIGN(4096);
 	.bss : {
-		*(.bss);
-		__bss_end = .;
+		*(.bss)
 	}
+	PROVIDE(__bss_end = .);
 }
