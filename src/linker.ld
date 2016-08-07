@@ -36,7 +36,7 @@ SECTIONS
 
 	/*
 	 * These sections are not flagged with alloc so
-	 * they are ignored objcopy so put these after the bss.
+	 * they are ignored objcopy, so put these after the bss.
 	 */
 	.debug_str : { *(.debug_str) }
 	.debug_loc : { *(.debug_loc) }
@@ -54,9 +54,9 @@ SECTIONS
 	 * Discard all other senctions.
 	 *
 	 * Including among other .eh_frame, because right now
-	 * we exceptions in metal. So the .eh_frame section is
-	 * not needed. LD discards this but not lld unless we
-	 * are explicit.
+	 * we don't use exceptions in metal. So the .eh_frame
+	 * section is not needed. LD discards this but not lld
+	 * unless we are explicit.
 	 */
 	/DISCARD/ : { *(*) }
 }
