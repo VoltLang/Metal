@@ -51,11 +51,12 @@ SECTIONS
 	.comment : { *(.comment) }
 
 	/*
-	 * Right now we don't use exceptions in metal so this
-	 * so the .eh_frame section is not needed. LD discards
-	 * this but not lld unless we are explicit.
+	 * Discard all other senctions.
+	 *
+	 * Including among other .eh_frame, because right now
+	 * we exceptions in metal. So the .eh_frame section is
+	 * not needed. LD discards this but not lld unless we
+	 * are explicit.
 	 */
-	/DISCARD/ : {
-		*(.eh_frame)
-	}
+	/DISCARD/ : { *(*) }
 }
