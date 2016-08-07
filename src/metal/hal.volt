@@ -30,6 +30,7 @@ void init(uint magic, void* ptr)
 	l.ring.addSink(com1.sink);
 
 	parseMultiboot(magic, ptr);
+	parseACPI();
 
 	pci.checkAllBuses();
 }
@@ -121,26 +122,141 @@ void parseMultiboot2(mb2.Info* info)
 	}
 }
 
-void dumpACPI()
+void parseACPI()
 {
 	acpi.RSDT* rsdt = hal.rsdt;
 	acpi.XSDT* xsdt = hal.xsdt;
 
-	if (rsdt !is null && xsdt is null) {
-		acpi.dump(&rsdt.h);
-		foreach (a; rsdt.array) {
-			acpi.dump(cast(acpi.Header*) a);
-		}
-	} else if (rsdt !is null) {
-		l.writeln("acpi: Selecting XSDT over RDST");
-		acpi.dump(&rsdt.h);
-	}
-
-
 	if (xsdt !is null) {
 		acpi.dump(&xsdt.h);
 		foreach (a; xsdt.array) {
-			acpi.dump(cast(acpi.Header*) a);
+			h := cast(acpi.Header*)a;
+			switch (h.signature[..]) {
+			case "APIC": parseMADT(h); break;
+			default: acpi.dump(h); break;
+			}
 		}
+	} else if (rsdt !is null) {
+		acpi.dump(&rsdt.h);
+		foreach (a; rsdt.array) {
+			h := cast(acpi.Header*)a;
+			switch (h.signature[..]) {
+			case "APIC": parseMADT(h); break;
+			default: acpi.dump(h); break;
+			}
+		}
+	}
+}
+
+void parseMADT(acpi.Header* mdat)
+{
+	u8* ptr = cast(u8*)(mdat + 1);
+	u8* end = cast(u8*)mdat + mdat.length;
+
+	ptr += 8;
+
+	while (cast(size_t)ptr < cast(size_t)end) {
+		type := ptr[0];
+		len := ptr[1];
+
+		switch (type) {
+		// Processor Local APIC
+		case 0:
+			// ACPI Processor ID.
+			acpiID := *(ptr + 2);
+			// Processor's local APIC ID.
+			apicID := *(ptr + 3);
+			// Flags
+			flags := *cast(u32*)(ptr + 4);
+			// Extracted
+			enabled := (1 & flags) != 0;
+
+			l.write("acpi: MADT 0x00  acpiID: ");
+			l.writeHex(acpiID);
+			l.write(", apicID: ");
+			l.writeHex(apicID);
+			l.write(enabled ? ", enabled" : ", disabled");
+			l.writeln();
+			break;
+
+		// I/O APIC Structure
+		case 1:
+			// I/O APIC's ID.
+			apicID := *(ptr + 2);
+			// I/O APIC adress
+			address := *cast(u32*)(ptr + 4);
+			// Global System Interrupt Base.
+			gsiBase := *cast(u32*)(ptr + 8);
+
+			l.write("acpi: MADT 0x01  apicID: ");
+			l.writeHex(apicID);
+			l.write(", address: ");
+			l.writeHex(address);
+			l.write(", gsiBase: ");
+			l.writeHex(gsiBase);
+			l.writeln();
+			break;
+
+		// Interrupt Source Override Structure
+		case 2:
+			// Bus
+			bus := *(ptr + 2);
+			// Bus-relative interrupt source
+			source := *(ptr + 3);
+			// Global System Interrupt
+			gis := *cast(u32*)(ptr + 4);
+			// Flags
+			flags := *cast(u16*)(ptr + 8);
+			// Polarity of the APIC I/O input signal
+			polarity := cast(u8)(flags & 0x03);
+			// Trigger mode of the AIC I/O Unput signal
+			triggerMode := cast(u8)((flags >> 2) & 0x03);
+
+			l.write("acpi: MADT 0x02  id: ");
+			l.writeHex(bus);
+			l.write(", source: ");
+			l.writeHex(source);
+			l.write(", gis: ");
+			l.writeHex(gis);
+			l.write(", polarity: ");
+			l.writeHex(polarity);
+			l.write(", triggerMode: ");
+			l.writeHex(triggerMode);
+			l.writeln();
+			break;
+
+		// Local APIC NMI Structure
+		case 4:
+			// ACPI Processor ID.
+			acpiID := *(ptr + 2);
+			// Flags.
+			flags := *cast(u16*)(ptr + 3);
+			// Local APIC interrupt input LINTn to which NMI is connected.
+			lint := *(ptr + 5);
+			// Polarity of the APIC I/O input signal
+			polarity := cast(u8)(flags & 0x03);
+			// Trigger mode of the AIC I/O Unput signal
+			triggerMode := cast(u8)((flags >> 2) & 0x03);
+
+			l.write("acpi: MADT 0x04  acpiID: ");
+			l.writeHex(acpiID);
+			l.write(", lLINT#: ");
+			l.writeHex(lint);
+			l.write(", polarity: ");
+			l.writeHex(polarity);
+			l.write(", triggerMode: ");
+			l.writeHex(triggerMode);
+			l.writeln();
+			break;
+
+		default:
+			l.write("acpi: MADT 0x");
+			l.writeHex(type);
+			l.write("  unknown");
+			l.writeln();
+			break;
+		}
+
+		ptr += len;
 	}
 }

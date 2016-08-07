@@ -31,7 +31,6 @@ extern(C) void metal_main(uint magic, void* multibootInfo)
 	}
 
 	mb2.dump(hal.hal.multibootMagic, hal.hal.multibootInfo);
-	hal.dumpACPI();
 	e820.dumpMap();
 	pci.dumpDevices();
 }
