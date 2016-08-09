@@ -212,7 +212,7 @@ void parseMADT(acpi.Header* mdat)
 			// Trigger mode of the AIC I/O Unput signal
 			triggerMode := cast(u8)((flags >> 2) & 0x03);
 
-			l.write("acpi: MADT 0x02  id: ");
+			l.write("acpi: MADT 0x02  bus: ");
 			l.writeHex(bus);
 			l.write(", source: ");
 			l.writeHex(source);
