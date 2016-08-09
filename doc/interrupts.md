@@ -20,9 +20,9 @@ tables, a AML interpreter is not required right now.
 ### Legacy ISA interrupts
 
 The 16 legacy ISA interupts are mapped to first 16 GIS. By default these are
-level triggered[^1][1]. Inside of the MADT table there can be overrides for
+edge triggered[^1][1]. Inside of the MADT table there can be overrides for
 these 16 interrupts. On QEMU some of the remappings are only there to change
-the triggered mode from level to edge.
+the trigger mode from edge to level.
 
 ### GIS Global System Interrupts
 
