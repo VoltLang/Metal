@@ -8,7 +8,7 @@ OUTDIR ?= .obj
 NASMFLAGS ?= -f elf64 -g3 -F dwarf
 CFLAGS ?= -g --target=x86_64-pc-none-elf
 VFLAGS ?= -w -d --platform metal --arch x86_64
-LDFLAGS ?= -n -T src/linker.ld --gc-sections
+LDFLAGS ?= -T src/linker.ld --gc-sections -z max-page-size=0x1000
 
 METAL_QEMU_ARGS ?= -M q35 -serial stdio
 
