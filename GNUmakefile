@@ -7,7 +7,7 @@ QEMU ?= qemu-system-x86_64
 OUTDIR ?= .obj
 NASMFLAGS ?= -f elf64 -g3 -F dwarf
 CFLAGS ?= -g --target=x86_64-pc-none-elf
-VFLAGS ?= -d --platform metal --arch x86_64
+VFLAGS ?= -w -d --platform metal --arch x86_64
 LDFLAGS ?= -n -T src/linker.ld --gc-sections
 
 METAL_QEMU_ARGS ?= -M q35 -serial stdio
