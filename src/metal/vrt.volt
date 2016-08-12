@@ -7,17 +7,17 @@
 module metal.vrt;
 
 
-extern(C) void exit(int)
+extern(C) fn exit(int)
 {
 	*cast(int*)null = 0;
 }
 
-extern(C) int printf()
+extern(C) fn printf() int
 {
 	return 0;
 }
 
-extern(C) void* calloc(size_t n, size_t size)
+extern(C) fn calloc(n: size_t, size: size_t) void*
 {
 	return null;
 }

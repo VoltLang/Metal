@@ -32,18 +32,18 @@ struct Hal
 	rsdt: acpi.RSDT*;
 	xsdt: acpi.XSDT*;
 
-	multibootMagic: uint;
+	multibootMagic: u32;
 	multibootInfo: mb2.Info*;
 
 	lAPIC: .lAPIC;
-	ioAPICnum: uint;
+	ioAPICnum: u32;
 	ioAPIC: .ioAPIC[4];
 }
 
 /**
  * Init the HAL.
  */
-void init(uint magic, void* ptr)
+fn init(magic: u32, ptr: void*)
 {
 	l.writeln("serial: Setting up 0x03F8");
 	com1.setup(0x03F8);
@@ -65,7 +65,7 @@ void init(uint magic, void* ptr)
 /**
  * Setup various devices and memory from multiboot information.
  */
-void parseMultiboot(uint magic, void* ptr)
+fn parseMultiboot(magic: u32, ptr: void*)
 {
 	l.write("mb: ");
 	l.writeHex(magic);
@@ -82,7 +82,7 @@ void parseMultiboot(uint magic, void* ptr)
 	}
 }
 
-void parseMultiboot1(mb1.Info* info)
+fn parseMultiboot1(info: mb1.Info*)
 {
 	acpi.findX86(out hal.rsdt, out hal.xsdt);
 
@@ -91,15 +91,15 @@ void parseMultiboot1(mb1.Info* info)
 	}
 }
 
-void parseMultiboot2(mb2.Info* info)
+fn parseMultiboot2(info: mb2.Info*)
 {
-	mb2.TagMmap* mmap;
-	mb2.TagFramebuffer* fb;
-	mb2.TagOldACPI* oldACPI;
-	mb2.TagNewACPI* newACPI;
+	mmap: mb2.TagMmap*;
+	fb: mb2.TagFramebuffer*;
+	oldACPI: mb2.TagOldACPI*;
+	newACPI: mb2.TagNewACPI*;
 
 	// Frist search the tags for the mmap tag.
-	auto tag = cast(mb2.Tag*)&info[1];
+	tag := cast(mb2.Tag*)&info[1];
 	while (tag.type != mb2.TagType.END) {
 		switch (tag.type) with (mb2.TagType) {
 		case MMAP:
@@ -118,7 +118,7 @@ void parseMultiboot2(mb2.Info* info)
 		}
 
 		// Get new address and align.
-		auto addr = cast(size_t)tag + tag.size;
+		addr := cast(size_t)tag + tag.size;
 		if (addr % 8) {
 			addr += 8 - addr % 8;
 		}
@@ -153,10 +153,10 @@ void parseMultiboot2(mb2.Info* info)
  * Prase the needed info from the ACPI tables
  * and save the information on the hal struct.
  */
-void parseACPI()
+fn parseACPI()
 {
-	acpi.RSDT* rsdt = hal.rsdt;
-	acpi.XSDT* xsdt = hal.xsdt;
+	rsdt := hal.rsdt;
+	xsdt := hal.xsdt;
 
 	if (xsdt !is null) {
 		acpi.dump(&xsdt.h);
@@ -183,12 +183,12 @@ void parseACPI()
  * Parse the APIC information from the MADT and
  * save the info in the hal struct.
  */
-void parseMADT(acpi.Header* mdat)
+fn parseMADT(mdat: acpi.Header*)
 {
 	acpi.dump(mdat);
 
-	u8* ptr = cast(u8*)(mdat);
-	u8* end = cast(u8*)(ptr + mdat.length);
+	ptr := cast(u8*)(mdat);
+	end := cast(u8*)(ptr + mdat.length);
 
 	{
 		// Local Interrupt Controller Address.

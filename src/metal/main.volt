@@ -15,7 +15,7 @@ import metal.printer;
 import metal.stdc;
 
 
-extern(C) void metal_main(uint magic, void* multibootInfo)
+extern(C) fn metal_main(magic: u32, multibootInfo: void*)
 {
 	writeln("Volt Metal");
 	hal.init(magic, multibootInfo);

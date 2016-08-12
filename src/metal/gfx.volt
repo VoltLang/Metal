@@ -2,27 +2,29 @@
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 module metal.gfx;
 
-
 import l = metal.printer;
+
+
+global info: Info;
 
 struct Info
 {
-	uint w;
-	uint h;
-	uint pitch;
+	w: u32;
+	h: u32;
+	pitch: u32;
 
-	uint bytesPerPixel;
+	bytesPerPixel: u32;
 
-	void* ptr;
+	ptr: void*;
 
-	uint pixelOffX;
-	uint pixelOffY;
-	uint x;
-	uint y;
+	pixelOffX: u32;
+	pixelOffY: u32;
+	x: u32;
+	y: u32;
 
-	bool loaded;
+	loaded: bool;
 
-	void installSink()
+	fn installSink()
 	{
 		if (loaded) {
 			return;
@@ -31,9 +33,9 @@ struct Info
 		l.ring.addSink(sink);
 	}
 
-	void sink(scope const(char)[] str)
+	fn sink(str: scope const(char)[])
 	{
-		foreach (char c; str) {
+		foreach (c: char; str) {
 			switch (c) {
 			case '\t':
 				x += (8 - (x % 8));
@@ -45,9 +47,9 @@ struct Info
 				x = 0;
 				break;
 			default:
-				uint X = pixelOffX + x * GlyphWidth;
-				uint Y = pixelOffY + y * GlyphHeight;
-				putGlyph(X, Y, cast(ubyte)c);
+				X: u32 = pixelOffX + x * GlyphWidth;
+				Y: u32 = pixelOffY + y * GlyphHeight;
+				putGlyph(X, Y, cast(u8)c);
 				x++;
 				break;
 			}
@@ -55,22 +57,19 @@ struct Info
 	}
 }
 
-global Info info;
-
-
-void putGlyph(uint x, uint y, ubyte glyph)
+fn putGlyph(x: u32, y: u32, glyph: u8)
 {
 	info.bytesPerPixel = 4;
 
-	uint posX = glyph % 16u;
-	uint posY = (glyph / 16u) * (Width / GlyphWidth) * GlyphHeight;
-	uint pos = posX + posY;
+	posX: u32 = glyph % 16u;
+	posY: u32 = (glyph / 16u) * (Width / GlyphWidth) * GlyphHeight;
+	pos: u32 = posX + posY;
 
-	auto startPtr = info.ptr + (info.pitch * y + info.bytesPerPixel * x);
+	startPtr := info.ptr + (info.pitch * y + info.bytesPerPixel * x);
 
 	foreach (gy; 0 .. GlyphHeight) {
-		uint* ptr = cast(uint*) (startPtr + info.pitch * gy);
-		auto d = glyphData[pos + gy * Width / GlyphWidth];
+		ptr := cast(u32*) (startPtr + info.pitch * gy);
+		d := glyphData[pos + gy * Width / GlyphWidth];
 		foreach (gx; 0 .. GlyphWidth) {
 			*ptr = d & (0x80u >> (gx % GlyphWidth)) ? 0xFFFFFFFFu : 0u;
 			ptr += 1;
@@ -78,19 +77,19 @@ void putGlyph(uint x, uint y, ubyte glyph)
 	}
 }
 
-void clearLine(size_t y, uint color)
+fn clearLine(y: size_t, color: u32)
 {
-	auto ptr = cast(uint*)info.ptr + (info.pitch * y / 4);
+	ptr := cast(u32*)info.ptr + (info.pitch * y / 4);
 	foreach (x; 0 .. info.w) {
 		ptr[x] = color;
 	}
 }
 
-enum uint Width = 128;
-enum uint Height = 160;
-enum uint GlyphWidth = 8;
-enum uint GlyphHeight = 10;
-global immutable(ubyte)[2560] glyphData = [
+enum u32 Width = 128;
+enum u32 Height = 160;
+enum u32 GlyphWidth = 8;
+enum u32 GlyphHeight = 10;
+global glyphData: immutable(u8)[2560] = [
 	0x00, 0x7e, 0x7e, 0x36, 0x08, 0x1c, 0x08, 0x00, 0xff, 0x00, 0x00, 0x0f, 0x3c, 0x00, 0x7f, 0x18,
 	0x00, 0x81, 0xff, 0x7f, 0x1c, 0x3e, 0x1c, 0x00, 0xff, 0x00, 0x00, 0x07, 0x66, 0x00, 0x63, 0xdb,
 	0x00, 0xa5, 0xdb, 0x7f, 0x3e, 0x1c, 0x3e, 0x00, 0xff, 0x00, 0x00, 0x0f, 0x66, 0x00, 0x7f, 0x3c,

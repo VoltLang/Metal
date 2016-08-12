@@ -5,20 +5,20 @@ module metal.drivers.serial;
 import arch.x86.ioports;
 
 
-global Serial com1;
+global com1: Serial;
 
 struct Serial
 {
 public:
-	ushort port;
+	port: u16;
 
 public:
-	ushort off(ushort off)
+	fn off(off: u16) u16
 	{
-		return cast(ushort)(port + off);
+		return cast(u16)(port + off);
 	}
 
-	void setup(ushort port)
+	fn setup(port: u16)
 	{
 		this.port = port;
 		outb(off(1), 0x00);    // Disable all interrupts
@@ -30,20 +30,20 @@ public:
 		outb(off(4), 0x0B);    // IRQs enabled, RTS/DSR set
 	}
 
-	bool writeEmpty()
+	fn writeEmpty() bool
 	{
 		return (inb(off(5)) & 0x20) != 0;
 	}
 
-	void sink(scope const(char)[] str)
+	fn sink(str: scope const(char)[])
 	{
-		foreach (char c; str) {
+		foreach (c: char; str) {
 			while (!writeEmpty()) {}
 			outb(port, c);
 		}
 	}
 
-	void write(char a)
+	fn write(a: char)
 	{
 		while (!writeEmpty()) {}
 		outb(port, a);
@@ -51,12 +51,12 @@ public:
 
 	alias write = sink;
 
-	void writeln()
+	fn writeln()
 	{
 		write("\n");
 	}
 
-	void writeln(scope const(char)[] str)
+	fn writeln(str: scope const(char)[])
 	{
 		write(str);
 		write("\n");

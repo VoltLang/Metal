@@ -10,15 +10,15 @@ import mb2 = metal.boot.multiboot2;
 /**
  * Static allocation that holds the memory map.
  */
-global Map map;
+global map: Map;
 
 /**
  *
  */
 struct Map
 {
-	Entry[128] entries;
-	size_t num;
+	entries: Entry[128];
+	num: size_t;
 }
 
 /**
@@ -26,50 +26,50 @@ struct Map
  */
 struct Entry
 {
-	ulong address;
-	ulong size;
-	ulong type;
+	address: u64;
+	size: u64;
+	type: u64;
 }
 
 
-void fromMultiboot1(mb1.Info* info)
+fn fromMultiboot1(info: mb1.Info*)
 {
-	uint addr = info.mmap_addr;
-	uint end = addr + info.mmap_length;
+	addr: u32 = info.mmap_addr;
+	end: u32 = addr + info.mmap_length;
 
 	foreach (ref e; map.entries) {
 		if (addr >= end) {
 			break;
 		}
 
-		uint size = *cast(uint*)(addr);
-		e.address = *cast(ulong*)(addr + 4);
-		e.size = *cast(ulong*)(addr + 12);
-		e.type = *cast(uint*)(addr + 20);
+		size := *cast(u32*)(addr);
+		e.address = *cast(u64*)(addr + 4);
+		e.size = *cast(u64*)(addr + 12);
+		e.type = *cast(u32*)(addr + 20);
 
 		addr += size + 4;
 		map.num++;
 	}
 }
 
-void fromMultiboot2(mb2.TagMmap* mmap)
+fn fromMultiboot2(mmap: mb2.TagMmap*)
 {
 	// Info: mmap.entry_version is guaranteed to be
 	// backwards compatible so no need to check it here.
 	// This code is written against version 0.
 
 	// The entries lies just after the mmap tag.
-	uint addr = cast(uint)&mmap[1];
+	addr: u32 = cast(u32)&mmap[1];
 	// The stride/size is included.
-	uint size = mmap.entry_size;
-	uint end = cast(uint)mmap + mmap.size;
+	size: u32 = mmap.entry_size;
+	end: u32 = cast(u32)mmap + mmap.size;
 
 	foreach (ref e; map.entries) {
 		if (addr >= end) {
 			break;
 		}
 
-		auto entry = cast(mb2.MmapEntry*)addr;
+		entry := cast(mb2.MmapEntry*)addr;
 		e.address = entry.base_addr;
 		e.size = entry.length;
 		e.type = entry.type;
@@ -79,13 +79,13 @@ void fromMultiboot2(mb2.TagMmap* mmap)
 	}
 }
 
-void dumpMap()
+fn dumpMap()
 {
 	foreach (ref e; map.entries[0 .. map.num]) {
 		write("e820: ");
 		writeHex(e.address); write(" ");
 		writeHex(e.address + e.size); write(" ");
-		writeHex(cast(uint)e.type);
+		writeHex(cast(u32)e.type);
 		writeln();
 	}
 }

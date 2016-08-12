@@ -8,7 +8,7 @@ import metal.acpi;
 
 enum MAGIC = 0x36d76289;
 
-enum TagType : uint
+enum TagType : u32
 {
 	END              = 0,
 	CMDLINE          = 1,
@@ -31,7 +31,7 @@ enum TagType : uint
 	EFI_BS           = 18,
 }
 
-global immutable string[20] tagNames = [
+global tagNames: immutable string[20] = [
 	"END",
 	"CMDLINE",
 	"BOOT_LOADER_NAME",
@@ -56,25 +56,25 @@ global immutable string[20] tagNames = [
 
 struct Info
 {
-	uint total_size;
-	uint reserved;
+	total_size: u32;
+	reserved: u32;
 }
 
 struct Tag
 {
-	TagType type;
-	uint size;
+	type: TagType;
+	size: u32;
 }
 
 struct TagMmap
 {
-	TagType type;
-	uint size;
-	uint entry_size;
-	uint entry_version;
+	type: TagType;
+	size: u32;
+	entry_size: u32;
+	entry_version: u32;
 }
 
-enum Memory : uint
+enum Memory : u32
 {
 	AVAILABLE          = 1,
 	RESERVED           = 2,
@@ -85,13 +85,13 @@ enum Memory : uint
 
 struct MmapEntry
 {
-	ulong base_addr;
-	ulong length;
-	Memory type;
-	uint zero;
+	base_addr: u64;
+	length: u64;
+	type: Memory;
+	zero: u32;
 }
 
-enum FramebufferType : uint
+enum FramebufferType : u32
 {
 	INDEXED = 0x00,
 	RGB     = 0x01,
@@ -100,37 +100,37 @@ enum FramebufferType : uint
 
 struct TagFramebuffer
 {
-	TagType type;
-	uint size;
-	ulong framebuffer_addr;
-	uint framebuffer_pitch;
-	uint framebuffer_width;
-	uint framebuffer_height;
-	ubyte framebuffer_bpp;
-	ubyte framebuffer_type;
-	ubyte reserved;
+	type: TagType;
+	size: u32;
+	framebuffer_addr: u64;
+	framebuffer_pitch: u32;
+	framebuffer_width: u32;
+	framebuffer_height: u32;
+	framebuffer_bpp: u8;
+	framebuffer_type: u8;
+	reserved: u8;
 }
 
 struct TagEFI32
 {
-	TagType type;
-	uint size;
-	uint pointer;
+	type: TagType;
+	size: u32;
+	pointer: u32;
 }
 
 struct TagEFI64
 {
-	TagType type;
-	uint size;
-	ulong pointer;
+	type: TagType;
+	size: u32;
+	pointer: u64;
 }
 
 struct TagOldACPI
 {
-	TagType type;
-	uint size;
+	type: TagType;
+	size: u32;
 
-	@property RSDPDescriptor* rsdp()
+	@property fn rsdp() RSDPDescriptor*
 	{
 		return cast(RSDPDescriptor*)&(&this)[1];
 	}
@@ -138,10 +138,10 @@ struct TagOldACPI
 
 struct TagNewACPI
 {
-	TagType type;
-	uint size;
+	type: TagType;
+	size: u32;
 
-	@property RSDPDescriptor20* rsdp()
+	@property fn rsdp() RSDPDescriptor20*
 	{
 		return cast(RSDPDescriptor20*)&(&this)[1];
 	}
@@ -149,17 +149,18 @@ struct TagNewACPI
 
 struct TagEFIMMAP
 {
-	TagType type;
-	uint size;
-	uint descr_size;
-	uint descr_vers;
-	@property void* mmap()
+	type: TagType;
+	size: u32;
+	descr_size: u32;
+	descr_vers: u32;
+
+	@property fn mmap() void*
 	{
 		return cast(void*)&(&this)[1];
 	}
 }
 
-void dump(uint magic, Info* info)
+fn dump(magic: u32, info: Info*)
 {
 	// Turns out that info might be null but still be valid
 	// because grub might put it there (it does on EFI macs).
@@ -167,19 +168,19 @@ void dump(uint magic, Info* info)
 		return;
 	}
 
-	auto tag = cast(Tag*)&info[1];
+	tag := cast(Tag*)&info[1];
 	while (tag.type != TagType.END) {
 		l.write("mb: ");
-		l.writeHex(cast(ubyte)tag.type); l.write(" ");
+		l.writeHex(cast(u8)tag.type); l.write(" ");
 		l.writeHex(tag.size); l.write(" ");
-		size_t i = tag.type;
+		i: size_t = tag.type;
 		if (i >= tagNames.length) {
 			i = tagNames.length - 1;
 		}
 		l.writeln(tagNames[i]);
 
 		// Get new address and align.
-		auto addr = cast(size_t)tag + tag.size;
+		addr := cast(size_t)tag + tag.size;
 		if (addr % 8) {
 			addr += 8 - addr % 8;
 		}

@@ -10,7 +10,7 @@ module metal.hal.apic;
  */
 struct lAPIC
 {
-	address: uint;
+	address: u32;
 	hasPCAT: bool;
 }
 
@@ -19,6 +19,6 @@ struct lAPIC
  */
 struct ioAPIC
 {
-	address: uint;
-	gsiBase: uint;
+	address: u32;
+	gsiBase: u32;
 }

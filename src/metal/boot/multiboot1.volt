@@ -7,45 +7,45 @@ enum MAGIC = 0x2BADB002;
 
 struct Info
 {
-	enum Flags : int {
+	enum Flags : i32 {
 		Mem        = 1 << 0,
 		BootDevice = 1 << 1,
 		CmdLine    = 1 << 2,
 		Mmap       = 1 << 6,
 	}
 
-	Flags flags;
+	flags: Flags;
 
-	uint mem_lower;
-	uint mem_upper;
+	mem_lower: u32;
+	mem_upper: u32;
 
-	uint boot_device;
+	boot_device: u32;
 
-	uint cmdline;
+	cmdline: u32;
 
-	uint mods_count;
-	uint mods_addr;
+	mods_count: u32;
+	mods_addr: u32;
 
-	uint syms0;
-	uint syms1;
-	uint syms2;
-	uint syms3;
+	syms0: u32;
+	syms1: u32;
+	syms2: u32;
+	syms3: u32;
 
-	uint mmap_length;	
-	uint mmap_addr;
+	mmap_length: u32;
+	mmap_addr: u32;
 
-	uint drivers_lengtH;
-	uint drivers_addr;
+	drivers_length: u32;
+	drivers_addr: u32;
 
-	uint config_table;
+	config_table: u32;
 
-	uint boot_loder_name;
+	boot_loder_name: u32;
 
-	uint apm_table;
+	apm_table: u32;
 
-	uint vbe_control_info;
-	uint vbe_mode_info;
-	uint vbe_mode;
-	uint vbe_interface_seg;
-	uint vbe_interace_len;
+	vbe_control_info: u32;
+	vbe_mode_info: u32;
+	vbe_mode: u32;
+	vbe_interface_seg: u32;
+	vbe_interace_len: u32;
 }

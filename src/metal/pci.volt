@@ -8,7 +8,7 @@ import arch.x86.ioports;
 import bochs = metal.drivers.bochs;
 
 
-enum Offset : ubyte {
+enum Offset : u8 {
 	VENDOR   = 0x00,
 	DEVICE   = 0x02,
 	CLASS    = 0x0B,
@@ -20,7 +20,7 @@ enum Offset : ubyte {
 	CAPABILITY_LIST = 0x34,
 }
 
-enum CapId : ubyte {
+enum CapId : u8 {
 	PM		= 0x01,	/* Power Management */
 	AGP		= 0x02,	/* Accelerated Graphics Port */
 	VPD		= 0x03,	/* Vital Product Data */
@@ -43,7 +43,7 @@ enum CapId : ubyte {
 	EA		= 0x14,	/* PCI Enhanced Allocation */
 }
 
-enum CapOffset : ubyte {
+enum CapOffset : u8 {
 	LIST_ID		= 0,	/* Capability ID */
 	LIST_NEXT	= 1,	/* Next capability in the list */
 	FLAGS		= 2,	/* Capability defined flags (16 bits) */
@@ -76,43 +76,43 @@ enum CapNames = [
 
 struct Header
 {
-	ushort vendor;
-	ushort device;
+	vendor: u16;
+	device: u16;
 
-	ushort command;
-	ushort status;
+	command: u16;
+	status: u16;
 
-	ubyte rev;
-	ubyte progIF;
-	ubyte subClass;
-	ubyte baseClass;
+	rev: u8;
+	progIF: u8;
+	subClass: u8;
+	baseClass: u8;
 
-	ubyte cacheLineSize;
-	ubyte latencyTimer;
-	ubyte headerType;
-	ubyte BIST;
+	cacheLineSize: u8;
+	latencyTimer: u8;
+	headerType: u8;
+	BIST: u8;
 }
 
 struct Device
 {
-	ubyte bus, slot, func, headerType;
-	ushort vendor, device;
-	ubyte rev, progIF, subClass, baseClass;
+	bus, slot, func, headerType: u8;
+	vendor, device: u16;
+	rev, progIF, subClass, baseClass: u8;
 
-	uint cap;
+	cap: u32;
 }
 
 struct Info {
-	Device[256] devs;
-	uint num;
+	devs: Device[256];
+	num: u32;
 }
 
-global Info info;
+global info: Info;
 
 /**
  * Load a given device.
  */
-void loadDevice(Device* dev)
+fn loadDevice(dev: Device*)
 {
 	if (dev.vendor == 0x1234 && dev.device == 0x1111) {
 		bochs.loadFromPCI(dev);
@@ -122,21 +122,21 @@ void loadDevice(Device* dev)
 /**
  * Is there a device there?
  */
-bool isValidDevice(ubyte bus, ubyte slot, ubyte func)
+fn isValidDevice(bus: u8, slot: u8, func: u8) bool
 {
-	return readUshort(bus, slot, func, Offset.VENDOR) != 0xFFFF;
+	return readU16(bus, slot, func, Offset.VENDOR) != 0xFFFF;
 }
 
 /**
  * We have detected a device (down to the function).
  * If it is a pci-to-pci bridge we scan that as well. 
  */
-void checkFunction(ubyte bus, ubyte slot, ubyte func)
+fn checkFunction(bus: u8, slot: u8, func: u8)
 {
-	Header h;
+	h: Header;
 	readHeader(bus, slot, func, ref h);
 
-	auto dev = &info.devs[info.num++];
+	dev := &info.devs[info.num++];
 	dev.bus = bus;
 	dev.slot = slot;
 	dev.func = func;
@@ -148,33 +148,33 @@ void checkFunction(ubyte bus, ubyte slot, ubyte func)
 	dev.subClass = h.subClass;
 	dev.baseClass = h.baseClass;
 
-	capPos := readUbyte(bus, slot, func, 0x34);
+	capPos := readU8(bus, slot, func, 0x34);
 	while (capPos != 0) {
-		readPos := cast(ubyte)(capPos + CapOffset.LIST_ID);
-		id := readUbyte(bus, slot, func, readPos);
-		readPos = cast(ubyte)(capPos + CapOffset.LIST_NEXT);
-		capPos = readUbyte(bus, slot, func, readPos);
+		readPos := cast(u8)(capPos + CapOffset.LIST_ID);
+		id := readU8(bus, slot, func, readPos);
+		readPos = cast(u8)(capPos + CapOffset.LIST_NEXT);
+		capPos = readU8(bus, slot, func, readPos);
 		if (id <= 31) {
 			dev.cap |= 1u << id;
 		}
 	}
 
 	if ((h.baseClass == 0x06) && (h.subClass == 0x04)) {
-		ubyte secondaryBus = readUbyte(bus, slot, func, Offset.SECONDARY_BUS);
+		secondaryBus := readU8(bus, slot, func, Offset.SECONDARY_BUS);
 		checkBus(secondaryBus);
 	}
 }
 
-void checkDevice(ubyte bus, ubyte slot)
+fn checkDevice(bus: u8, slot: u8)
 {
-	ubyte func;
+	func: u8;
 
 	if (!isValidDevice(bus, slot, 0)) {
 		return;
 	}
 	checkFunction(bus, slot, 0);
 
-	auto headerType = readUshort(bus, slot, func, Offset.HEADER);
+	headerType := readU16(bus, slot, func, Offset.HEADER);
 	if ((headerType & 0x80) != 0) {
 		for (func = 1; func < 8; func++) {
 			if (!isValidDevice(bus, slot, func)) {
@@ -185,16 +185,16 @@ void checkDevice(ubyte bus, ubyte slot)
 	}
 }
 
-void checkBus(ubyte bus)
+fn checkBus(bus: u8)
 {
 	foreach (slot; 0 .. 32) {
-		checkDevice(bus, cast(ubyte)slot);
+		checkDevice(bus, cast(u8)slot);
 	}
 }
 
-void checkAllBuses()
+fn checkAllBuses()
 {
-	Header h;
+	h: Header;
 
 	if (!isValidDevice(0, 0, 0)) {
 		return;
@@ -205,7 +205,7 @@ void checkAllBuses()
 		checkBus(0);
 	} else {
 		foreach (i; 0 .. 8) {
-			auto func = cast(ubyte) i;
+			func := cast(u8) i;
 
 			if (!isValidDevice(0, 0, func)) {
 				break;
@@ -226,17 +226,17 @@ void checkAllBuses()
  *
  */
 
-void readHeader(ubyte bus, ubyte slot, ubyte func, ref Header h)
+fn readHeader(bus: u8, slot: u8, func: u8, ref h: Header)
 {
-	uint* ptr = cast(uint*) &h;
+	ptr := cast(u32*) &h;
 	foreach (i; 0 .. 4) {
-		ptr[i] = readUint(bus, slot, func, cast(ubyte) (i * 4));
+		ptr[i] = readU32(bus, slot, func, cast(u8) (i * 4));
 	}
 }
 
-uint readUint(ubyte bus, ubyte slot, ubyte func, ubyte offset)
+fn readU32(bus: u8, slot: u8, func: u8, offset: u8) u32
 {
-	uint address = cast(uint) (
+	address := cast(u32) (
 		(bus << 16) |
 		(slot << 11) |
 		(func << 8) |
@@ -246,9 +246,9 @@ uint readUint(ubyte bus, ubyte slot, ubyte func, ubyte offset)
 	return inl(0xCFC);
 }
 
-ushort readUshort(ubyte bus, ubyte slot, ubyte func, ubyte offset)
+fn readU16(bus: u8, slot: u8, func: u8, offset: u8) u16
 {
-	uint address  = cast(uint) (
+	address := cast(u32) (
 		(bus << 16) |
 		(slot << 11) |
 		(func << 8) |
@@ -256,14 +256,14 @@ ushort readUshort(ubyte bus, ubyte slot, ubyte func, ubyte offset)
 		0x80000000);
 
 	outl(0xCF8, address);
-	int shift = (offset & 2) * 8;
-	int read = cast(int) inl(0xCFC);
-	return cast(ushort) (read >> shift);
+	shift: i32 = (offset & 2) * 8;
+	read: i32 = cast(i32) inl(0xCFC);
+	return cast(u16) (read >> shift);
 }
 
-ubyte readUbyte(ubyte bus, ubyte slot, ubyte func, ubyte offset)
+fn readU8(bus: u8, slot: u8, func: u8, offset: u8) u8
 {
-	uint address  = cast(uint) (
+	address := cast(u32) (
 		(bus << 16) |
 		(slot << 11) |
 		(func << 8) |
@@ -271,20 +271,20 @@ ubyte readUbyte(ubyte bus, ubyte slot, ubyte func, ubyte offset)
 		0x80000000);
 
 	outl(0xCF8, address);
-	int shift = (offset & 3) * 8;
-	int read = cast(int) inl(0xCFC);
-	return cast(ubyte) (read >> shift);
+	shift: i32 = (offset & 3) * 8;
+	read: i32 = cast(i32) inl(0xCFC);
+	return cast(u8) (read >> shift);
 }
 
-void dumpDevices()
+fn dumpDevices()
 {
 	foreach (ref dev; info.devs[0 .. info.num]) {
-		char[8] buf;
-		buf[0] = valToHex(dev.bus >> 8);
-		buf[1] = valToHex(dev.bus     );
+		buf: char[8];
+		buf[0] = valToHex(dev.bus >> 8u);
+		buf[1] = valToHex(dev.bus      );
 		buf[2] = ':';
-		buf[3] = valToHex(dev.slot >> 8);
-		buf[4] = valToHex(dev.slot     );
+		buf[3] = valToHex(dev.slot >> 8u);
+		buf[4] = valToHex(dev.slot      );
 		buf[5] = '.';
 		buf[6] = valToHex(dev.func);
 		buf[7] = ' ';
@@ -305,7 +305,7 @@ void dumpDevices()
 
 		write(", caps: ");
 		foreach (i, name; CapNames) {
-			bit := 1u << cast(uint)i;
+			bit := 1u << cast(u32)i;
 
 			if (!(dev.cap & (1u << i))) {
 				continue;

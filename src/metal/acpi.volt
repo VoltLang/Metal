@@ -8,51 +8,51 @@ import metal.stdc : memcmp;
 
 struct RSDPDescriptor
 {
-	char[8] signature;
-	ubyte checksum;
-	char[6] OEMID;
-	ubyte revision;
-	uint rsdtAddress;
+	signature: char[8];
+	checksum: u8;
+	OEMID: char[6];
+	revision: u8;
+	rsdtAddress: u32;
 }
 
 struct RSDPDescriptor20
 {
-	RSDPDescriptor v1;
+	v1: RSDPDescriptor;
 
-	uint length;
-	ulong xsdtAddress;
-	ubyte extendedChecksum;
-	ubyte[3] reserved;
+	length: u32;
+	xsdtAddress: u64;
+	extendedChecksum: u8;
+	reserved: u8[3];
 }
 
 struct Header
 {
-	char[4] signature;
-	uint length;
-	ubyte revision;
-	ubyte checksum;
-	char[6] OEMID;
-	char[6] OEMTableID;
-	uint OEMRevision;
-	uint creatorID;
-	uint creatorRevision;
+	signature: char[4];
+	length: u32;
+	revision: u8;
+	checksum: u8;
+	OEMID: char[6];
+	OEMTableID: char[6];
+	OEMRevision: u32;
+	creatorID: u32;
+	creatorRevision: u32;
 }
 
 struct RSDT
 {
-	Header h;
+	h: Header;
 
-	@property size_t length()
+	@property fn length() size_t
 	{
 		return (h.length - typeid(h).size) / 4;
 	}
 
-	@property uint* ptr()
+	@property fn ptr() u32*
 	{
-		return cast(uint*)&(&h)[1];
+		return cast(u32*)&(&h)[1];
 	}
 
-	@property uint[] array()
+	@property fn array() u32[]
 	{
 		return ptr[0 .. length];
 	}
@@ -60,32 +60,32 @@ struct RSDT
 
 struct XSDT
 {
-	Header h;
+	h: Header;
 
-	@property size_t length()
+	@property fn length() size_t
 	{
 		return (h.length - typeid(h).size) / 8;
 	}
 
-	@property ulong* ptr()
+	@property fn ptr() u64*
 	{
-		return cast(ulong*)&(&h)[1];
+		return cast(u64*)&(&h)[1];
 	}
 
-	@property ulong[] array()
+	@property fn array() u64[]
 	{
 		return ptr[0 .. length];
 	}
 }
 
-void findX86(out RSDT* rsdt, out XSDT* xsdt)
+fn findX86(out rsdt: RSDT*, out xsdt: XSDT*)
 {
-	for (size_t ptr = 0; ptr < 0x100000; ptr += 16) {
+	for (ptr: size_t; ptr < 0x100000; ptr += 16) {
 		if (memcmp(cast(void*)ptr, cast(void*)("RSD PTR ".ptr), 8) != 0) {
 			continue;
 		}
 
-		auto t = cast(RSDPDescriptor20*)ptr;
+		t := cast(RSDPDescriptor20*)ptr;
 		if (t.v1.revision >= 0) {
 			rsdt = cast(RSDT*) t.v1.rsdtAddress;
 		}
@@ -96,7 +96,7 @@ void findX86(out RSDT* rsdt, out XSDT* xsdt)
 	}
 }
 
-void dump(Header* h)
+fn dump(h: Header*)
 {
 	l.write("acpi: "); l.write(h.signature); l.write(" ");
 	l.writeHex(h.length); l.write(" ");

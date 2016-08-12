@@ -7,19 +7,19 @@
 module metal.stdc;
 
 
-extern(C) void* memcpy(void* dst, const(void)* src, size_t n)
+extern(C) fn memcpy(dst: void*, src: const(void)*, n: size_t) void*
 {
-	void* old = dst;
+	old := dst;
 	while (n--) {
 		*dst++ = *src++;
 	}
 	return old;
 }
 
-extern(C) void* memmove(void* dst, const(void)* src, size_t n)
+extern(C) fn memmove(dst: void*, src: const(void)*, n: size_t) void*
 {
-	char* d = cast(char*)dst;
-	const(char)* s = cast(const(char)*)src;
+	d := cast(char*)dst;
+	s := cast(const(char)*)src;
 
 	if (cast(size_t)src < cast(size_t)dst &&
 	    cast(size_t)dst < cast(size_t)src + n) {
@@ -38,12 +38,12 @@ extern(C) void* memmove(void* dst, const(void)* src, size_t n)
 	return dst;
 }
 
-extern(C) int memcmp(const(void)* ptr1, const(void)* ptr2, size_t n)
+extern(C) fn memcmp(ptr1: const(void)*, ptr2: const(void)*, n: size_t) int
 {
-	const(char)* p1 = cast(const(char)*) ptr1;
-	const(char)* p2 = cast(const(char)*) ptr2;
+	p1 := cast(const(char)*) ptr1;
+	p2 := cast(const(char)*) ptr2;
 	while (n--) {
-		int ret = *p1++ - *p2++;
+		ret := *p1++ - *p2++;
 		if (ret) {
 			return ret;
 		}
@@ -51,9 +51,9 @@ extern(C) int memcmp(const(void)* ptr1, const(void)* ptr2, size_t n)
 	return 0;
 }
 
-extern(C) void* memset(void* ptr, const int val, size_t n)
+extern(C) fn memset(ptr: void*, val: const int, n: size_t) void*
 {
-	char* p = cast(char*) ptr;
+	p := cast(char*) ptr;
 	while (n--) {
 		*p++ = cast(char)val;
 	}

@@ -5,76 +5,76 @@ module metal.printer;
 
 alias Sink = void delegate(scope const(char)[]);
 
-char valToHex(int v)
+fn valToHex(v: u64) char
 {
 	v = v & 0x0f;
 	v = v + '0';
 	if (v > '9') {
-		v += 'A' - '9' - 1;
+		v += cast(u64)('A' - '9' - 1);
 	}
 	return cast(char)v;
 }
 
-void write(scope const(char)[] a)
+fn write(a: scope const(char)[])
 {
 	ring.put(a);
 }
 
-void writeln()
+fn writeln()
 {
 	ring.put("\n");
 }
 
-void writeln(scope const(char)[] a)
+fn writeln(a: scope const(char)[])
 {
 	ring.put(a);
 	ring.put("\n");
 }
 
-void writeHex(ubyte v)
+fn writeHex(v: u8)
 {
-	char[2] buf;
+	buf: char[2];
 
-	buf[0] = valToHex(v >>  4);
-	buf[1] = valToHex(v >>  0);
+	buf[0] = valToHex(v >>  4u);
+	buf[1] = valToHex(v >>  0u);
 
 	ring.put(buf);
 }
 
-void writeHex(ushort v)
+fn writeHex(v: u16)
 {
-	char[4] buf;
+	buf: char[4];
 
-	buf[0] = valToHex(v >> 12);
-	buf[1] = valToHex(v >>  8);
-	buf[2] = valToHex(v >>  4);
-	buf[3] = valToHex(v >>  0);
+	buf[0] = valToHex(v >> 12u);
+	buf[1] = valToHex(v >>  8u);
+	buf[2] = valToHex(v >>  4u);
+	buf[3] = valToHex(v >>  0u);
 
 	ring.put(buf);
 }
 
-void writeHex(uint hex)
+fn writeHex(hex: u32)
 {
-	char[8] buf;
+	buf: char[8];
 
 	foreach (i, ref c; buf) {
-		auto v = hex >> 28;
+		v := hex >> 28;
 
-		c = valToHex(cast(int) v);
+		c = valToHex(v);
 		hex = hex << 4;
 	}
 
 	ring.put(buf);
 }
 
-void writeHex(ulong hex)
+fn writeHex(hex: u64)
 {
-	char[16] buf;
+	buf: char[16];
 
 	foreach (i, ref c; buf) {
-		auto v = hex >> 60;
+		v := hex >> 60;
 
-		c = valToHex(cast(int) v);
+		c = valToHex(v);
 		hex = hex << 4;
 	}
 
@@ -83,12 +83,12 @@ void writeHex(ulong hex)
 
 struct Ring
 {
-	char[10258] buf;
-	Sink[4] sinks;
-	uint writePos;
-	uint numSinks;
+	buf: char[10258];
+	sinks: Sink[4];
+	writePos: u32;
+	numSinks: u32;
 
-	void put(scope const(char)[] str)
+	fn put(str: scope const(char)[])
 	{
 		foreach (s; sinks[0 .. numSinks]) {
 			s(str);
@@ -102,15 +102,15 @@ struct Ring
 		}
 	}
 
-	void addSink(Sink sink)
+	fn addSink(sink: Sink)
 	{
 		sinks[numSinks++] = sink;
 		print(sink);
 	}
 
-	void print(Sink sink)
+	fn print(sink: Sink)
 	{
-		auto t = buf[writePos .. buf.length];
+		t := buf[writePos .. buf.length];
 		if (t.length != 0 && t[0] != '\0') {
 			sink(t);
 		}
@@ -122,4 +122,4 @@ struct Ring
 	}
 }
 
-global Ring ring;
+global ring: Ring;
