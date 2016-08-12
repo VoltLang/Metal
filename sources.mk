@@ -9,7 +9,7 @@ ASMSRC = \
 	src/boot/multiboot.asm
 
 VOLTSRC = \
-	src/arch/x86/*.volt \
+	src/arch/x86_64/*.volt \
 	src/metal/drivers/*.volt \
 	src/metal/boot/*.volt \
 	src/metal/hal/*.volt \
