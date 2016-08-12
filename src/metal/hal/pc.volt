@@ -1,8 +1,13 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
-module metal.hal;
+/**
+ * Main module holding the hal for AMD64 PCs.
+ */
+module metal.hal.pc;
 
 import metal.drivers.serial;
+import metal.hal.apic;
+
 import l = metal.printer;
 import acpi = metal.acpi;
 import e820 = metal.e820;
@@ -12,33 +17,32 @@ import gfx = metal.gfx;
 import pci = metal.pci;
 
 
+/**
+ * Main instance of the hal, defined as a variable so we can
+ * store info here without having a working memory allocator.
+ */
+global hal: Hal;
+
+/**
+ * Holds all of the needed abstractions and information
+ * for interfacing to a modern AMD64 PC.
+ */
 struct Hal
 {
-	acpi.RSDT* rsdt;
-	acpi.XSDT* xsdt;
+	rsdt: acpi.RSDT*;
+	xsdt: acpi.XSDT*;
 
-	uint multibootMagic;
-	mb2.Info* multibootInfo;
+	multibootMagic: uint;
+	multibootInfo: mb2.Info*;
 
-	.lAPIC lAPIC;
-	uint ioAPICnum;
-	.ioAPIC[4] ioAPIC;
+	lAPIC: .lAPIC;
+	ioAPICnum: uint;
+	ioAPIC: .ioAPIC[4];
 }
 
-struct lAPIC
-{
-	uint address;
-	bool hasPCAT;
-}
-
-struct ioAPIC
-{
-	uint address;
-	uint gsiBase;
-}
-
-global Hal hal;
-
+/**
+ * Init the HAL.
+ */
 void init(uint magic, void* ptr)
 {
 	l.writeln("serial: Setting up 0x03F8");
@@ -50,6 +54,13 @@ void init(uint magic, void* ptr)
 
 	pci.checkAllBuses();
 }
+
+
+/*
+ *
+ * Parsing functions.
+ *
+ */
 
 /**
  * Setup various devices and memory from multiboot information.
@@ -138,6 +149,10 @@ void parseMultiboot2(mb2.Info* info)
 	}
 }
 
+/**
+ * Prase the needed info from the ACPI tables
+ * and save the information on the hal struct.
+ */
 void parseACPI()
 {
 	acpi.RSDT* rsdt = hal.rsdt;
@@ -164,6 +179,10 @@ void parseACPI()
 	}
 }
 
+/**
+ * Parse the APIC information from the MADT and
+ * save the info in the hal struct.
+ */
 void parseMADT(acpi.Header* mdat)
 {
 	acpi.dump(mdat);
