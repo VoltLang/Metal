@@ -19,6 +19,22 @@ struct Hal
 
 	uint multibootMagic;
 	mb2.Info* multibootInfo;
+
+	.lAPIC lAPIC;
+	uint ioAPICnum;
+	.ioAPIC[4] ioAPIC;
+}
+
+struct lAPIC
+{
+	uint address;
+	bool hasPCAT;
+}
+
+struct ioAPIC
+{
+	uint address;
+	uint gsiBase;
 }
 
 global Hal hal;
@@ -150,11 +166,29 @@ void parseACPI()
 
 void parseMADT(acpi.Header* mdat)
 {
-	u8* ptr = cast(u8*)(mdat + 1);
-	u8* end = cast(u8*)mdat + mdat.length;
+	acpi.dump(mdat);
 
-	ptr += 8;
+	u8* ptr = cast(u8*)(mdat);
+	u8* end = cast(u8*)(ptr + mdat.length);
 
+	{
+		// Local Interrupt Controller Address.
+		address := *cast(u32*)(ptr + 0x24);
+		// Flags.
+		flags := *cast(u32*)(ptr + 0x28);
+		// Extracted flags.
+		hasPCAT := (1 & flags) != 0;
+
+		l.write("acpi: APIC lAPIC addr: ");
+		l.writeHex(address);
+		l.write(hasPCAT ? ", PCAT_COMPAT" : "");
+		l.writeln();
+
+		hal.lAPIC.address = address;
+		hal.lAPIC.hasPCAT = hasPCAT;
+	}
+
+	ptr += 0x2C;
 	while (cast(size_t)ptr < cast(size_t)end) {
 		type := ptr[0];
 		len := ptr[1];
@@ -171,7 +205,7 @@ void parseMADT(acpi.Header* mdat)
 			// Extracted
 			enabled := (1 & flags) != 0;
 
-			l.write("acpi: MADT 0x00  acpiID: ");
+			l.write("acpi: APIC 0x00  acpiID: ");
 			l.writeHex(acpiID);
 			l.write(", apicID: ");
 			l.writeHex(apicID);
@@ -188,13 +222,18 @@ void parseMADT(acpi.Header* mdat)
 			// Global System Interrupt Base.
 			gsiBase := *cast(u32*)(ptr + 8);
 
-			l.write("acpi: MADT 0x01  apicID: ");
+			l.write("acpi: APIC 0x01  apicID: ");
 			l.writeHex(apicID);
 			l.write(", address: ");
 			l.writeHex(address);
 			l.write(", gsiBase: ");
 			l.writeHex(gsiBase);
 			l.writeln();
+
+			ioAPIC := &hal.ioAPIC[hal.ioAPICnum++];
+			ioAPIC.address = address;
+			ioAPIC.gsiBase = gsiBase;
+
 			break;
 
 		// Interrupt Source Override Structure
@@ -212,7 +251,7 @@ void parseMADT(acpi.Header* mdat)
 			// Trigger mode of the AIC I/O Unput signal
 			triggerMode := cast(u8)((flags >> 2) & 0x03);
 
-			l.write("acpi: MADT 0x02  bus: ");
+			l.write("acpi: APIC 0x02  bus: ");
 			l.writeHex(bus);
 			l.write(", source: ");
 			l.writeHex(source);
@@ -238,7 +277,7 @@ void parseMADT(acpi.Header* mdat)
 			// Trigger mode of the AIC I/O Unput signal
 			triggerMode := cast(u8)((flags >> 2) & 0x03);
 
-			l.write("acpi: MADT 0x04  acpiID: ");
+			l.write("acpi: APIC 0x04  acpiID: ");
 			l.writeHex(acpiID);
 			l.write(", lLINT#: ");
 			l.writeHex(lint);
@@ -250,7 +289,7 @@ void parseMADT(acpi.Header* mdat)
 			break;
 
 		default:
-			l.write("acpi: MADT 0x");
+			l.write("acpi: APIC 0x");
 			l.writeHex(type);
 			l.write("  unknown");
 			l.writeln();
