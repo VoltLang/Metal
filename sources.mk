@@ -4,6 +4,7 @@ CSRC = \
 
 ASMSRC = \
 	src/arch/x86_64/ioports.asm \
+	src/arch/x86_64/interrupts.asm \
 	src/boot/switch.asm \
 	src/boot/multiboot.asm
 
