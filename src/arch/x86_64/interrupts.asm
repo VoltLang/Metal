@@ -1,3 +1,5 @@
+; Copyright © 2015-2016, Alexandru-Mihai Maftei.  All rights reserved.
+; ISR_STUB_* code is under the 3 clause BSD license.
 ; Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 ; See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 [global idt_init]
