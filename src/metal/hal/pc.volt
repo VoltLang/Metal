@@ -91,6 +91,10 @@ fn initAPIC()
 	// Load the IDT.
 	idt_init();
 
+	foreach (i; 0 .. hal.ioAPICnum) {
+		maskIOAPIC(ref hal.ioAPIC[i]);
+	}
+
 	// Helper address
 	lAPIC := cast(u8*)hal.lAPIC.address;
 
@@ -104,7 +108,29 @@ fn initAPIC()
 
 	// Send a IPI
 	*cast(u32*)(lAPIC + 0x310) = 0x0000_0000;
-	*cast(u32*)(lAPIC + 0x300) = 0x0004_4020;
+	*cast(u32*)(lAPIC + 0x300) = 0x0004_4030;
+}
+
+/**
+ * Mask a given IOAPIC.
+ */
+fn maskIOAPIC(ref ioAPIC: ioAPICInfo)
+{
+	addr := hal.ioAPIC[0].address;
+	data := ioAPICRead(addr, 0x01);
+	ver := 0xFF & data;
+	max := (0xFF & (data >> 16)) + 1;
+
+	l.write("apic: Masking IOAPIC, max: 0x");
+	l.writeHex(cast(u8)max);
+	l.writeln();
+
+	foreach (i; 0 .. max) {
+		low  := cast(u8)(0x10 + i * 2);
+		high := cast(u8)(low + 1);
+		ioAPICWrite(addr,  low, 0x00010000);
+		ioAPICWrite(addr, high, 0x00000000);
+	}
 }
 
 /**
