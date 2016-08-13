@@ -4,7 +4,7 @@ module metal.pci;
 
 import metal.drivers.serial;
 import metal.printer;
-import arch.x86.ioports;
+import arch.x86_64.ioports;
 import bochs = metal.drivers.bochs;
 
 

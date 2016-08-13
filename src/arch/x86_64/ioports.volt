@@ -1,6 +1,6 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
-module arch.x86.ioports;
+module arch.x86_64.ioports;
 
 
 extern(C) fn inb(port: u16) u8;

@@ -2,7 +2,7 @@
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 module metal.drivers.serial;
 
-import arch.x86.ioports;
+import arch.x86_64.ioports;
 
 
 global com1: Serial;
