@@ -5,6 +5,8 @@
  */
 module metal.hal.pc;
 
+import arch.x86_64.ioports;
+import arch.x86_64.interrupts;
 import metal.drivers.serial;
 import metal.hal.apic;
 
@@ -35,9 +37,9 @@ struct Hal
 	multibootMagic: u32;
 	multibootInfo: mb2.Info*;
 
-	lAPIC: .lAPIC;
+	lAPIC: lAPICInfo;
 	ioAPICnum: u32;
-	ioAPIC: .ioAPIC[4];
+	ioAPIC: ioAPICInfo[4];
 }
 
 /**
@@ -47,12 +49,72 @@ fn init(magic: u32, ptr: void*)
 {
 	l.writeln("serial: Setting up 0x03F8");
 	com1.setup(0x03F8);
+
 	l.ring.addSink(com1.sink);
 
 	parseMultiboot(magic, ptr);
 	parseACPI();
 
+	initAPIC();
+
 	pci.checkAllBuses();
+}
+
+/*
+ *
+ * APIC functions
+ *
+ */
+
+/**
+ * Inits and tests the local APIC.
+ */
+fn initAPIC()
+{
+	l.write("apic: Local APIC 0x");
+	l.writeHex(hal.lAPIC.address);
+	l.writeln();
+
+	// Disable master and slave PICs.
+	if (hal.lAPIC.hasPCAT) {
+		l.writeln("apic: Disabling PC-AT PICs");
+
+		outb(0xA1, 0xFF);
+		outb(0x41, 0xFF);
+	}
+
+	// Set test handler.
+	foreach (i; 0 .. 256u) {
+		isr_stub_set(testAPIC, i);
+	}
+
+	// Load the IDT.
+	idt_init();
+
+	// Helper address
+	lAPIC := cast(u8*)hal.lAPIC.address;
+
+	l.writeln("apic: Enabling interrupts");
+
+	// Enable us to receive interrupts
+	svrPtr := cast(u32*)(lAPIC + 0x0F0);
+	*svrPtr |= 0x100;
+
+	idt_enable();
+
+	// Send a IPI
+	*cast(u32*)(lAPIC + 0x310) = 0x0000_0000;
+	*cast(u32*)(lAPIC + 0x300) = 0x0004_4020;
+}
+
+/**
+ * Function to test of the Local APIC works.
+ */
+extern(C) fn testAPIC(void*, vector: u64, void*)
+{
+	l.write("apic: IRQ 0x");
+	l.writeHex(cast(u8)vector);
+	l.writeln();
 }
 
 

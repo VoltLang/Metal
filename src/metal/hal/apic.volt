@@ -8,7 +8,7 @@ module metal.hal.apic;
 /**
  * Holds info about the processor local APIC.
  */
-struct lAPIC
+struct lAPICInfo
 {
 	address: u32;
 	hasPCAT: bool;
@@ -17,7 +17,7 @@ struct lAPIC
 /**
  * Holds information about a signle I/O APIC.
  */
-struct ioAPIC
+struct ioAPICInfo
 {
 	address: u32;
 	gsiBase: u32;
