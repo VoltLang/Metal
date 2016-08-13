@@ -110,11 +110,36 @@ fn initAPIC()
 /**
  * Function to test of the Local APIC works.
  */
-extern(C) fn testAPIC(void*, vector: u64, void*)
+extern(C) fn testAPIC(state: IrqState*, vector: u64, void*)
 {
 	l.write("apic: IRQ 0x");
 	l.writeHex(cast(u8)vector);
 	l.writeln();
+
+	l.write("      r15: "); l.writeHex(state.r15); l.writeln();
+	l.write("      r14: "); l.writeHex(state.r14); l.writeln();
+	l.write("      r13: "); l.writeHex(state.r13); l.writeln();
+	l.write("      r12: "); l.writeHex(state.r12); l.writeln();
+	l.write("      r11: "); l.writeHex(state.r11); l.writeln();
+	l.write("      r10: "); l.writeHex(state.r10); l.writeln();
+	l.write("       r9: "); l.writeHex(state.r9); l.writeln();
+	l.write("       r8: "); l.writeHex(state.r8); l.writeln();
+	l.write("      rsi: "); l.writeHex(state.rsi); l.writeln();
+	l.write("      rdi: "); l.writeHex(state.rdi); l.writeln();
+	l.write("      rbp: "); l.writeHex(state.rbp); l.writeln();
+	l.write("      rdx: "); l.writeHex(state.rdx); l.writeln();
+	l.write("      rcx: "); l.writeHex(state.rcx); l.writeln();
+	l.write("      rbx: "); l.writeHex(state.rbx); l.writeln();
+	l.write("      rax: "); l.writeHex(state.rax); l.writeln();
+	l.write("errorCode: "); l.writeHex(state.errorCode); l.writeln();
+	l.write("      rip: "); l.writeHex(state.rip); l.writeln();
+	l.write("       cs: "); l.writeHex(state.cs); l.writeln();
+	l.write("   rflags: "); l.writeHex(state.rflags); l.writeln();
+	l.write("      rsp: "); l.writeHex(state.rsp); l.writeln();
+	l.write("       ss: "); l.writeHex(state.ss); l.writeln();
+
+	lAPIC := cast(u8*)hal.lAPIC.address;
+	*cast(u32*)(lAPIC + 0x0B0) = 0x0;
 }
 
 
