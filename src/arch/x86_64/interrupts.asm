@@ -1,33 +1,82 @@
 ; Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 ; See copyright notice in LICENSE.txt (BOOST ver. 1.0).
+[global idt_init]
+[global idt_init]
+[global idt_enable]
+[global idt_disable]
+[global idt_get]
 [global idt_set]
-[global isr_set]
-[global isr_functions]
+[global isr_stub_set]
 bits 64
-
-section .data
-align 16
-idt64:
-.size:
-	dw 0
-.pointer:
-	dq 0
-
-
 section .text
+
+; Enables interrupts
+; Ret. N/A - Nothing.
 align 16
-idt_set:
-	mov	[idt64.pointer], rdi
-	mov	[idt64.size], si
+idt_enable:
+	sti
+	ret
+
+
+; Disables interrupts
+; Ret. N/A - Nothing.
+align 16
+idt_disable:
+	cli
+	ret
+
+
+; Sets the idt to the inbuilt table and enables interrupts.
+; Ret. N/A - Nothing.
+align 16
+idt_init:
+	mov	qword [idt64.pointer], idt_table
+	mov	word [idt64.size], 256*16-1
 	lidt	[idt64]
 	ret
 
 
+; Returns a pointer to the idt_entry at the given vector.
+;   1. RSI - The vector to return.
+; Ret. RAX - A pointer to the entry.
 align 16
-isr_set:
-	mov	rax, isr_functions
-	mov	[rax + rdi * 8], rsi
+idt_get:
+	shl	rdi, 0x4
+	mov	rax, idt_table
+	add	rax, rdi
 	ret
+
+
+; Sets the offset, segment and type_attr fields on a vector in the IDT.
+; By default sets type_attr to 0x8f00 and segment to 0x0010.
+;   1. RSI - The offset to set.
+;   2. RDI - The vector to set.
+; Ret. N/A - Nothing.
+align 16
+idt_set:
+	shl	rsi, 0x4
+	mov	word [rsi+idt_table], di
+	mov	word [rsi+idt_table+0x2], 0x0008
+	and	rdi, 0xffffffffffff0000
+	or	rdi, 0x8e00
+	mov	qword [rsi+idt_table+0x4], rdi
+	ret
+
+
+; Sets up a stub and the idt entry for vector.
+; By default sets type_attr to 0x8f00 and segment to 0x1000
+;   1. RSI - The function which the stub should call.
+;   2. RDI - The vector to set.
+; Ret. N/A - Nothing.
+align 16
+isr_stub_set:
+	mov	rax, isr_functions
+	mov	[rax + rsi * 8], rdi
+	mov	rdi, isr_stub_0
+	mov	rax, rsi
+	shl	rax, 0x4
+	add	rdi, rax
+	jmp	idt_set
 
 
 ; Stub that saves all of registers and calls the correct function.
@@ -160,8 +209,23 @@ isr_stubs_end:
 
 
 
+section .data
+
+align 16
+idt64:
+.size:
+	dw 0
+.pointer:
+	dq 0
+
+
+
 section .bss
 
-align 8
+align 16
 isr_functions:
 	resb 8 * 256
+
+align 16
+idt_table:
+	resb 16 * 256
