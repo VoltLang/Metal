@@ -193,7 +193,7 @@ isr_stubs_start:
 	ISR_STUB_ERR   14
 	ISR_STUB       15
 	ISR_STUB       16
-	ISR_STUB       17
+	ISR_STUB_ERR   17
 	ISR_STUB       18
 	ISR_STUB       19
 	ISR_STUB       20
