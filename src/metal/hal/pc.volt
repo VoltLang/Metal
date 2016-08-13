@@ -80,7 +80,7 @@ fn initAPIC()
 		l.writeln("apic: Disabling PC-AT PICs");
 
 		outb(0xA1, 0xFF);
-		outb(0x41, 0xFF);
+		outb(0x21, 0xFF);
 	}
 
 	// Set test handler.
