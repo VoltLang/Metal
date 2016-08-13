@@ -142,6 +142,11 @@ extern(C) fn testAPIC(state: IrqState*, vector: u64, void*)
 	l.writeHex(cast(u8)vector);
 	l.writeln();
 
+	if (vector == 0x30) {
+		return;
+	}
+
+	l.write("       ds: "); l.writeHex(state.ds); l.writeln();
 	l.write("      r15: "); l.writeHex(state.r15); l.writeln();
 	l.write("      r14: "); l.writeHex(state.r14); l.writeln();
 	l.write("      r13: "); l.writeHex(state.r13); l.writeln();

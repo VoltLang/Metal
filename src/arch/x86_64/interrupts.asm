@@ -32,8 +32,6 @@ idt_disable:
 ; Ret. N/A - Nothing.
 align 16
 idt_init:
-	mov	qword [idt64.pointer], idt_table
-	mov	word [idt64.size], 256*16-1
 	lidt	[idt64]
 	ret
 
@@ -101,8 +99,13 @@ isr_stub:
 	push	r14
 	push	r15
 
+	; Save the data segment
+	xor	rbx, rbx
+	mov	bx, ds
+	push	rbx
+
 	; Make the stack pointer the first parameter.
-	mov     rdi, rsp
+	mov	rdi, rsp
 
 	; The base pointer has to be 0, so the interrupt handler's
 	; stack frames do not link to the userland frames.
@@ -122,6 +125,11 @@ isr_stub:
 	; Call handler. Preserves RBP by convention.
 	call	rdx
 
+	; Restore the data segments
+	pop	rbx
+	mov	es, bx
+	mov	ds, bx
+
 	; Restore the same general-purpose registers.
 	; Including RAX as it was pushed by the initial stub.
 	pop	r15
@@ -138,10 +146,10 @@ isr_stub:
 	pop	rdx
 	pop	rcx
 	pop	rbx
-	pop     rax
+	pop	rax
 
 	; "Pop" error code.
-	add     rsp, 8
+	add	rsp, 8
 
 	; Interrupt is now done.
 	iretq
@@ -152,7 +160,7 @@ isr_stub:
 		push	qword 0
 		push	rax
 		mov	eax, %1
-        	jmp	isr_stub
+		jmp	isr_stub
 	align 16
 %endmacro
 
@@ -216,9 +224,9 @@ section .data
 align 16
 idt64:
 .size:
-	dw 0
+	dw	(256*16-1)
 .pointer:
-	dq 0
+	dq	(idt_table)
 
 
 

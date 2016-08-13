@@ -10,6 +10,7 @@ alias IrqFn = fn!C (state: IrqState*, vector: u64, void*);
 
 struct IrqState
 {
+	ds: u64;
 	r15: u64;
 	r14: u64;
 	r13: u64;
