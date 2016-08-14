@@ -1,3 +1,4 @@
+// Copyright © 2014, Bernard Helyer.  All rights reserved.
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in LICENSE.txt (BOOST ver. 1.0).
 /**
@@ -7,17 +8,22 @@
 module metal.vrt;
 
 
-extern(C) fn exit(int)
+/**
+ * Generate a hash.
+ * djb2 algorithm stolen from http://www.cse.yorku.ca/~oz/hash.html
+ *
+ * This needs to correspond with the implementation
+ * in volt.util.string in the compiler.
+ */
+extern(C) fn vrt_hash(ptr: void*, length: size_t) u32
 {
-	*cast(int*)null = 0;
-}
+	h: u32 = 5381;
 
-extern(C) fn printf() int
-{
-	return 0;
-}
+	uptr: u8* = cast(u8*) ptr;
 
-extern(C) fn calloc(n: size_t, size: size_t) void*
-{
-	return null;
+	foreach (i; 0 .. length) {
+		h = ((h << 5) + h) + uptr[i];
+	}
+
+	return h;
 }

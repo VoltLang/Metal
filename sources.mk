@@ -10,6 +10,9 @@ ASMSRC = \
 
 VOLTSRC = \
 	src/arch/x86_64/*.volt \
+	src/core/compiler/*.volt \
+	src/core/rt/*.volt \
+	src/core/*.volt \
 	src/metal/drivers/*.volt \
 	src/metal/boot/*.volt \
 	src/metal/hal/*.volt \
