@@ -1,5 +1,6 @@
 
 LD ?= ld
+LLD ?= ld.lld
 VOLT ?= volt
 NASM ?= nasm
 CLANG ?= clang
@@ -9,6 +10,7 @@ NASMFLAGS ?= -f elf64 -g3 -F dwarf
 CFLAGS ?= -g --target=x86_64-pc-none-elf
 VFLAGS ?= --no-stdlib -w -d --platform metal --arch x86_64
 LDFLAGS ?= -T src/linker.ld --gc-sections -z max-page-size=0x1000
+LLDFLAGS ?= $(LDFLAGS) -O3 --lto-O3
 
 METAL_QEMU_ARGS ?= -M q35 -serial stdio
 
@@ -19,11 +21,12 @@ METAL_ISO ?= metal.iso
 all: $(METAL_BIN)
 
 include sources.mk
+VOLTBC = $(OUTDIR)/volt.bc
 COBJ = $(patsubst src/%.c, $(OUTDIR)/%.c.o, $(CSRC))
 ASMOBJ = $(patsubst src/%.asm, $(OUTDIR)/%.asm.o, $(ASMSRC))
 VOLTOBJ = $(OUTDIR)/volt.o
-VOLTBC = $(OUTDIR)/volt.bc
-OBJ = $(COBJ) $(ASMOBJ) $(VOLTOBJ)
+LD_INPUT = $(COBJ) $(ASMOBJ) $(VOLTOBJ)
+LLD_INPUT = $(COBJ) $(ASMOBJ) $(VOLTBC)
 
 
 $(OUTDIR)/%.asm.o: src/%.asm
@@ -38,15 +41,22 @@ $(OUTDIR)/%.c.o: src/%.c
 
 $(VOLTBC): $(VOLTSRC)
 	@echo "  VOLTA    $@"
+	@mkdir -p $(dir $@)
 	@$(VOLT) --emit-bitcode -o $@ $(VFLAGS) $(VOLTSRC)
 
 $(VOLTOBJ): $(VOLTBC)
 	@echo "  VOLTA    $@"
 	@$(VOLT) -c -o $@ $<
 
-$(METAL_ELF): $(OBJ) src/linker.ld
+ifeq ($(shell which $(LLD)),)
+$(METAL_ELF): $(LD_INPUT) src/linker.ld
 	@echo "  LD       $@"
-	@$(LD) -o $@ $(LDFLAGS) $(OBJ)
+	@$(LD) -o $@ $(LDFLAGS) $(LD_INPUT)
+else
+$(METAL_ELF): $(LLD_INPUT) src/linker.ld
+	@echo "  LLD      $@"
+	@$(LLD) -o $@ $(LLDFLAGS) $(LLD_INPUT)
+endif
 
 $(METAL_BIN): $(METAL_ELF)
 	@echo "  OBJCOPY  $@"
