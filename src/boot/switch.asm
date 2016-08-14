@@ -71,6 +71,16 @@ loop_pd:
 	or eax, (1 << 8) | (1 << 0);
 	wrmsr
 
+	; Enable SEE and 64bit
+	mov eax, cr0
+	mov ecx, cr4
+	and ax, (0xFFFD & 0xFFFB)
+	or eax, (1 << 31 | 1 << 4 | 1 << 1)
+	or cx, 0x0600
+	mov cr0, eax
+	mov cr4, ecx
+	fninit
+
 	mov eax, cr0
 	or eax, 1 << 31
 	mov cr0, eax
