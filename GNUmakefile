@@ -21,7 +21,9 @@ all: $(METAL_BIN)
 include sources.mk
 COBJ = $(patsubst src/%.c, $(OUTDIR)/%.c.o, $(CSRC))
 ASMOBJ = $(patsubst src/%.asm, $(OUTDIR)/%.asm.o, $(ASMSRC))
-OBJ = $(COBJ) $(ASMOBJ)
+VOLTOBJ = $(OUTDIR)/volt.o
+VOLTBC = $(OUTDIR)/volt.bc
+OBJ = $(COBJ) $(ASMOBJ) $(VOLTOBJ)
 
 
 $(OUTDIR)/%.asm.o: src/%.asm
@@ -34,9 +36,17 @@ $(OUTDIR)/%.c.o: src/%.c
 	@echo "  CLANG    $@"
 	@$(CLANG) -o $@ -c $(CFLAGS) $^
 
-$(METAL_ELF): $(OBJ) src/linker.ld $(VOLTSRC)
+$(VOLTBC): $(VOLTSRC)
+	@echo "  VOLTA    $@"
+	@$(VOLT) --emit-bitcode -o $@ $(VFLAGS) $(VOLTSRC)
+
+$(VOLTOBJ): $(VOLTBC)
+	@echo "  VOLTA    $@"
+	@$(VOLT) -c -o $@ $<
+
+$(METAL_ELF): $(OBJ) src/linker.ld
 	@echo "  LD       $@"
-	@$(VOLT) -o $@ --linker $(LD) $(patsubst %, --Xlinker %, $(LDFLAGS)) $(OBJ) $(VFLAGS) $(VOLTSRC)
+	@$(LD) -o $@ $(LDFLAGS) $(OBJ)
 
 $(METAL_BIN): $(METAL_ELF)
 	@echo "  OBJCOPY  $@"
