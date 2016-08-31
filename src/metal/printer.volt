@@ -3,7 +3,7 @@
 module metal.printer;
 
 
-alias Sink = void delegate(scope const(char)[]);
+alias Sink = dg (scope const(char)[]);
 
 fn valToHex(v: u64) char
 {
