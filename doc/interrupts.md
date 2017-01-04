@@ -26,13 +26,13 @@ the trigger mode from edge to level.
 
 ### GIS Global System Interrupts
 
-Global System Interrupts are virtual interrupt numbers, verious ACPI tables
+Global System Interrupts are virtual interrupt numbers, various ACPI tables
 refere to these numbers. IOAPICs are mapped into the GIS, the information for
 that can be found in the MDAT table and the IOAPIC.
 
 ### Futher reading
 
-http://forum.osdev.org/viewtopic.php?t=11379
-https://en.wikipedia.org/wiki/Intel_8259#Spurious_Interrupts
+http://forum.osdev.org/viewtopic.php?t=11379  
+https://en.wikipedia.org/wiki/Intel_8259#Spurious_Interrupts  
 
 [1]: https://en.wikipedia.org/wiki/Intel_8259#Edge_and_level_triggered_modes
