@@ -46,7 +46,7 @@ $(VOLTBC): $(VOLTSRC)
 
 $(VOLTOBJ): $(VOLTBC)
 	@echo "  VOLTA    $@"
-	@$(VOLT) -c -o $@ $<
+	@$(VOLT) -c -o $@ $(VFLAGS) $<
 
 ifeq ($(shell which $(LLD)),)
 $(METAL_ELF): $(LD_INPUT) src/linker.ld
