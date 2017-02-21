@@ -48,6 +48,7 @@ SECTIONS
 	.debug_line : { *(.debug_line) }
 	.debug_aranges : { *(.debug_aranges) }
 	.debug_frame : { *(.debug_frame) }
+	.shstrtab : { *(.shstrtab) }
 	.comment : { *(.comment) }
 
 	/*
