@@ -5,14 +5,19 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 1048576;
+	/*
+	 * Load the payload/kernel at 1 megabyte, this the common place on
+	 * X86 platforms to load kernels. Follow with the multiboot header
+	 * and then the text section.
+	 */
+	. = 1M;
 	.boot_header : { *(.boot_header) }
 	.boot_text : { *(.boot_text) }
 	.text : { *(.text) }
 
 	/*
-	 * The different data sections might have different alignments so
-	 * we need to put them seperatetly in the binary.
+	 * The different data sections might have different alignments so we
+	 * need to put them seperatetly in the binary.
 	 */
 	. = ALIGN(4096);
 	.data : { *(.data) }
@@ -22,8 +27,8 @@ SECTIONS
 	.gcc_except_table : { *(.gcc_except_table) }
 
 	/*
-	 * The symbol most be exactly at the end of the data sections
-	 * or the symbol might point outside of the final binary.
+	 * The symbol must be exactly at the end of the data sections or the
+	 * symbol might point outside of the final binary.
 	 */
 	PROVIDE(__data_end = .);
 
@@ -35,8 +40,9 @@ SECTIONS
 	PROVIDE(__bss_end = .);
 
 	/*
-	 * These sections are not flagged with alloc so
-	 * they are ignored objcopy, so put these after the bss.
+	 * These sections are not flagged with alloc so they are ignored
+	 * objcopy, so put these after the bss. But we want the in the
+	 * intermidiate elf binary for debugging.
 	 */
 	.debug_str : { *(.debug_str) }
 	.debug_loc : { *(.debug_loc) }
@@ -54,10 +60,9 @@ SECTIONS
 	/*
 	 * Discard all other senctions.
 	 *
-	 * Including among other .eh_frame, because right now
-	 * we don't use exceptions in metal. So the .eh_frame
-	 * section is not needed. LD discards this but not lld
-	 * unless we are explicit.
+	 * Including among other .eh_frame, because right now we don't use
+	 * exceptions in metal. So the .eh_frame section is not needed. LD
+	 * discards this but not lld unless we are explicit.
 	 */
 	/DISCARD/ : { *(*) }
 }
