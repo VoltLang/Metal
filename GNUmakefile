@@ -74,6 +74,10 @@ run: $(METAL_BIN)
 	@echo "  QEMU     $^"
 	@qemu-system-x86_64 -kernel $^ $(METAL_QEMU_ARGS)
 
+run-iso: $(METAL_ISO)
+	@echo "  QEMO     $^"
+	@qemu-system-x86_64 -cdrom $^ $(METAL_QEMU_ARGS)
+
 debug: $(METAL_BIN)
 	@echo "  QEMU     $^"
 	@qemu-system-x86_64 -kernel $^ $(METAL_QEMU_ARGS) -S -s &
