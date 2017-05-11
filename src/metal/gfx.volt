@@ -71,7 +71,7 @@ fn putGlyph(x: u32, y: u32, glyph: u8)
 		ptr := cast(u32*) (startPtr + info.pitch * gy);
 		d := glyphData[pos + gy * Width / GlyphWidth];
 		foreach (gx; 0 .. GlyphWidth) {
-			*ptr = d & (0x80u >> (gx % GlyphWidth)) ? 0xFFFFFFFFu : 0u;
+			*ptr = d & (0x80 >> (gx % GlyphWidth)) ? 0xFFFFFFFF_u32 : 0x00_u32;
 			ptr += 1;
 		}
 	}

@@ -57,7 +57,7 @@ fn loadFromPCI(pciDev: pci.Device*)
 	dev.pci = pciDev;
 	bar1 := pci.readU32(pciDev.bus, pciDev.slot, pciDev.func, 0x10);
 
-	dev.ptr = cast(void*)(bar1 & 0xFFFFFFF0u);
+	dev.ptr = cast(void*)(bar1 & 0xFFFFFFF0_u32);
 	readLayout(&dev);
 	if (dev.pitch == 0 || dev.bpp != 32) {
 		setLayout(&dev, 800, 600, 32);

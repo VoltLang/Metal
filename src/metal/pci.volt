@@ -241,7 +241,7 @@ fn readU32(bus: u8, slot: u8, func: u8, offset: u8) u32
 		(slot << 11) |
 		(func << 8) |
 		(offset & 0xfc) |
-		0x80000000);
+		0x80000000_i32);
 	outl(0xCF8, address);
 	return inl(0xCFC);
 }
@@ -253,7 +253,7 @@ fn readU16(bus: u8, slot: u8, func: u8, offset: u8) u16
 		(slot << 11) |
 		(func << 8) |
 		(offset & 0xfc) |
-		0x80000000);
+		0x80000000_i32);
 
 	outl(0xCF8, address);
 	shift: i32 = (offset & 2) * 8;
@@ -268,7 +268,7 @@ fn readU8(bus: u8, slot: u8, func: u8, offset: u8) u8
 		(slot << 11) |
 		(func << 8) |
 		(offset & 0xfc) |
-		0x80000000);
+		0x80000000_i32);
 
 	outl(0xCF8, address);
 	shift: i32 = (offset & 3) * 8;
