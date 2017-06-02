@@ -1,4 +1,4 @@
-// Copyright © 2012-2016, Jakob Bornecrantz.  All rights reserved.
+// Copyright © 2012-2017, Jakob Bornecrantz.
 // See copyright notice in src/volt/license.d (BOOST ver. 1.0).
 module core.rt.misc;
 
@@ -15,7 +15,14 @@ fn vrt_eh_throw(t: Throwable, location: string);
 fn vrt_eh_throw_slice_error(location: string);
 fn vrt_eh_throw_assert_error(location: string, msg: string);
 fn vrt_eh_throw_key_not_found_error(location: string);
-fn vrt_eh_personality_v0();
+fn vrt_eh_personality_v0(...) i32;
+
+/*
+ * Monotonic time.
+ */
+fn vrt_monotonic_init();
+fn vrt_monotonic_ticks() i64;
+fn vrt_monotonic_ticks_per_second() i64;
 
 /*
  * For those very bad times.
@@ -39,5 +46,6 @@ fn vrt_run_global_dtors() i32;
 /*
  * Unicode functions.
  */
+fn vrt_encode_static_u8(ref buf: char[6], c: dchar) size_t;
 fn vrt_decode_u8_d(str: string, ref index: size_t) dchar;
 fn vrt_reverse_decode_u8_d(str: string, ref index: size_t) dchar;

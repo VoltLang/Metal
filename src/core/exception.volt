@@ -1,4 +1,4 @@
-// Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
+// Copyright © 2016-2017, Jakob Bornecrantz.
 // See copyright notice in src/volt/license.d (BOOST ver. 1.0).
 module core.exception;
 
@@ -11,12 +11,12 @@ class Throwable
 	throwLocation: string;
 
 	// This is manually supplied.
-	loc: string;
+	location: string;
 
 	this(msg: string, location: string = __LOCATION__)
 	{
 		this.msg = msg;
-		this.loc = location;
+		this.location = location;
 	}
 }
 
