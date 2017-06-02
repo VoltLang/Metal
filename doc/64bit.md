@@ -1,3 +1,7 @@
+---
+layout: page
+title: 64bit
+---
 
 # 64bit
 
