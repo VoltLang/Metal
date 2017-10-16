@@ -45,7 +45,7 @@ struct Hal
 /**
  * Init the HAL.
  */
-fn init(magic: u32, ptr: void*)
+fn halInit(magic: u32, ptr: void*)
 {
 	l.writeln("serial: Setting up 0x03F8");
 	com1.setup(0x03F8);

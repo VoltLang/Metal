@@ -18,7 +18,7 @@ import metal.stdc;
 extern(C) fn metal_main(magic: u32, multibootInfo: void*)
 {
 	writeln("Volt Metal");
-	hal.init(magic, multibootInfo);
+	hal.halInit(magic, multibootInfo);
 
 	if (bochs.dev.loaded) {
 		gfx.info.ptr = bochs.dev.ptr;
