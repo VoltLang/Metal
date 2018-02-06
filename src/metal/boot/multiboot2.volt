@@ -177,7 +177,7 @@ fn dump(magic: u32, info: Info*)
 		if (i >= tagNames.length) {
 			i = tagNames.length - 1;
 		}
-		l.writeln(tagNames[i]);
+		l.writeln(cast(string)tagNames[i]);
 
 		// Get new address and align.
 		addr := cast(size_t)tag + tag.size;
